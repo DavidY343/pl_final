@@ -23,7 +23,8 @@ void updateLocalVarNFun(const char *fun_name) ;
 char *addNameFun(const char *fun_name) ;
 //
 char temp [2048] ;
-
+char identifactual [64];
+char funactual [64];
 // Definitions for explicit attributes
 
 typedef struct s_attr {
@@ -64,6 +65,7 @@ t_localvar *tablaLocalVar = NULL;
 %token MOREEQ
 %token IF
 %token ELSE
+%token RETURN
 
 %right '='                    // es la ultima operacion que se debe realizar
 %left OR
@@ -95,16 +97,25 @@ ListFunciones:    /*LAMBDA*/            { ; } ;
 			| ListFunciones Funcion     { printf ("%s\n", $2.code) ;} 
 			;
 
-Funcion:    IDENTIF '(' ')' '{' sentencias '}' { updateLocalVarNFun($1.code);
-										 sprintf (temp, "(defun %s ()\n%s)", $1.code, $5.code) ;
+Funcion:    IDENTIF {  sprintf(funactual, "%s", $1.code) ; }'(' params ')' '{' sentencias '}' { updateLocalVarNFun($1.code);
+										 sprintf (temp, "(defun %s (%s)\n%s)", $1.code, $4.code, $7.code) ;
 										 char *my_temp = addNameFun($1.code);
 										strcpy(temp, my_temp);
 										$$.code = gen_code (temp) ; 
 										free(my_temp); }
 			;
 
-MainFunc:  MAIN '(' ')' '{' sentencias '}' { updateLocalVarNFun("main"); 
-										sprintf (temp, "(defun main ()\n%s)", $5.code) ; 
+params: 		/*lamba*/			{ ; }
+	| param_list			{ sprintf (temp, "%s", $1.code);
+								$$.code = gen_code (temp) ; }
+	;
+param_list: INTEGER IDENTIF								 { sprintf (temp, "%s", $2.code);
+															$$.code = gen_code (temp) ;}
+	|		param_list ',' 	INTEGER IDENTIF		 		{ sprintf (temp, "%s %s", $1.code, $4.code);
+															$$.code = gen_code (temp); }
+	;
+MainFunc:  MAIN {  sprintf(funactual, "%s", $1.code) ; } '(' ')' '{' sentencias '}' { updateLocalVarNFun("main"); 
+										sprintf (temp, "(defun main ()\n%s)", $6.code) ; 
 										char *my_temp = addNameFun("main");
 										strcpy(temp, my_temp);
 										$$.code = gen_code (temp) ; 
@@ -117,21 +128,29 @@ sentencias:	sentencia 				{ sprintf (temp, "%s\n", $1.code) ;
 										$$.code = gen_code (temp) ;}
 			;
 
-sentencia:    IDENTIF '=' expresion ';' 																		{ sprintf (temp, "(setf %s %s)", $1.code, $3.code) ; 
-																													$$.code = gen_code (temp) ;} ;
-			| PRINTF '(' STRING ',' exprs ')' ';' 																{  $$ = $5; } ;
-			| PUTS '(' STRING ')'	';'																			{ sprintf (temp, "(print \"%s\")", $3.code) ; 
+
+sentencia:    IDENTIF {  sprintf(identifactual, "%s", $1.code) ; } 	varofun 				{ sprintf (temp, "%s", $3.code) ; 
+																													$$.code = gen_code (temp) ; } 
+			| PRINTF '(' STRING ',' exprs ')' ';' 																{  sprintf (temp, "%s", $5.code) ; 
 																													$$.code = gen_code (temp) ; } ;
+			| PUTS '(' STRING ')'	';'																			{ sprintf (temp, "(print \"%s\")", $3.code) ; 
+																													$$.code = gen_code (temp) ; } 
 			| WHILE '(' expresion ')' '{' sentencias '}' 														{sprintf (temp, "(loop while %s do \n%s)", $3.code, $6.code) ; 
-																													$$.code = gen_code (temp) ;} ;
+																													$$.code = gen_code (temp) ;} 
 			| FOR '(' IDENTIF '=' NUMBER ';' expresion ';' IDENTIF '=' expresion ')' '{' sentencias '}'			{sprintf (temp, "(setf %s %d)\n(loop while %s do \n%s(setf %s %s))", $3.code, $5.value, $7.code, $14.code, $9.code, $11.code) ; 
-																													$$.code = gen_code (temp) ;} ;
+																													$$.code = gen_code (temp) ;} 
 			| INTEGER aux_equalador	';'	 																		{  $$ = $2; }
 			| IF '(' expresion ')' '{'sentencias_if '}'	else_statement 											{sprintf (temp, "(if %s\n%s%s)", $3.code, $6.code, $8.code) ; 
 																													$$.code = gen_code (temp) ;}
+			| RETURN expresion ';'																				{sprintf (temp, "return-from %s %s", funactual, $2.code) ; 
+																													$$.code = gen_code (temp) ; } 
 			;	
 
-
+varofun: 	'=' expresion ';' 						{sprintf (temp, "(setf %s %s)", identifactual, $2.code) ;
+											$$.code = gen_code (temp) ;}
+	|		'(' arguments ')' ';'					{ sprintf (temp, "%s %s", identifactual, $2.code);
+												$$.code = gen_code (temp) ; }
+	;
 sentencias_if: sentencia 				{ sprintf (temp, "%s\n", $1.code) ;  
 										$$.code = gen_code (temp) ; } ;
 			| sentencias_if sentencia  { sprintf (temp, "(progn(%s%s\n)", $1.code, $2.code) ;  
@@ -153,7 +172,7 @@ aux_equalador: IDENTIF equalador					{ sprintf (temp, "(setq %s %s)", $1.code, $
 
 equalador: 			/*LAMBDA*/			{ sprintf (temp, "0") ; 
 										$$.code = gen_code (temp) ; } ;
-			| '=' NUMBER				{ sprintf (temp, "%d", $2.value) ;
+			| '=' expresion				{ sprintf (temp, "%s", $2.code) ;
 										$$.code = gen_code (temp) ;}
 			;
 
@@ -200,14 +219,29 @@ termino:        operando                           { $$ = $1 ; }
 			|   '!' operando %prec UNARY_SIGN  { sprintf(temp, "(! %s)", $2.code); $$.code = gen_code(temp); }
 			;
 
-operando:       IDENTIF                  { sprintf (temp, "%s", $1.code) ;
+operando:       IDENTIF maybefun          { sprintf (temp, "%s%s", $1.code, $2.code) ;
 										$$.code = gen_code (temp) ; }
 			|   NUMBER                   { sprintf (temp, "%d", $1.value) ;
 										$$.code = gen_code (temp) ; }
 			|   '(' expresion ')'        { $$ = $2 ; }
 			;
 
+maybefun: /*lambda*/					{ strcpy(temp, ""); 
+											$$.code = gen_code (temp) ; }
+			| '(' arguments')'			{ sprintf (temp, " %s", $2.code);
+								$$.code = gen_code (temp) ; }
+			;
 
+arguments: 		/*lamba*/			{ strcpy(temp, ""); 
+											$$.code = gen_code (temp) ; }
+	| arguments_list			{ sprintf (temp, "%s", $1.code);
+								$$.code = gen_code (temp) ; }
+	;
+arguments_list:  IDENTIF								 { sprintf (temp, "%s", $1.code);
+															$$.code = gen_code (temp) ;}
+	|		arguments_list ',' 	 IDENTIF		 		{ sprintf (temp, "%s %s", $1.code, $3.code);
+															$$.code = gen_code (temp); }
+	;
 %%                            // SECCION 4    Codigo en C
 
 //Funciones añadidas
@@ -387,6 +421,7 @@ t_keyword keywords [] = { // define las palabras reservadas y los
 	"if", 		IF, 
 	"else",		ELSE,
 	"for",		FOR,
+	"return",	RETURN,
 	NULL,          0               // para marcar el fin de la tabla
 } ;
 
