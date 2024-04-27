@@ -231,8 +231,11 @@ termino:        operando                           { $$ = $1 ; }
 			|   '!' operando %prec UNARY_SIGN  { sprintf(temp, "(! %s)", $2.code); $$.code = gen_code(temp); }
 			;
 
-operando:       IDENTIF {  sprintf(identifactual, "%s", $1.code) ; }  maybe   { sprintf (temp, "%s%s", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
+operando:       IDENTIF {  sprintf(identifactual, "%s", $1.code) ; }  maybe   { if ($3.code == "")
+																					sprintf (temp, "%s", $1.code) ;
+																				else
+																					sprintf (temp, "( %s%s )", $1.code, $3.code) ;
+																				$$.code = gen_code (temp) ; }
 			|   NUMBER                   { sprintf (temp, "%d", $1.value) ;
 										$$.code = gen_code (temp) ; }
 			|   '(' expresion ')'        { $$ = $2 ; }

@@ -1,9 +1,14 @@
 (defun mimax (a b)
-(if (>= a b)
-(progn((prin1 a)
+(if (>= ( a ) ( b ))
+(progn((prin1 ( a ))
 (print " ")
-)(progn((prin1 b)
+)(progn((prin1 ( b ))
 (print " ")
 ))
 )
-
+(defun main ()
+mimax 10 1
+mimax 1 10
+mimax 10 10
+)
+ (main)

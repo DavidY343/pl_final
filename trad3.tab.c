@@ -659,8 +659,8 @@ static const yytype_int16 yyrline[] =
      151,   153,   155,   155,   159,   161,   164,   166,   170,   173,
      178,   180,   182,   186,   188,   192,   194,   197,   198,   200,
      202,   204,   206,   208,   210,   212,   214,   216,   218,   220,
-     222,   226,   227,   229,   231,   234,   234,   236,   238,   241,
-     243,   245,   245,   249,   251,   254,   256
+     222,   226,   227,   229,   231,   234,   234,   239,   241,   244,
+     246,   248,   248,   252,   254,   257,   259
 };
 #endif
 
@@ -1826,81 +1826,84 @@ yyreduce:
 
   case 66: /* operando: IDENTIF $@6 maybe  */
 #line 234 "trad3.y"
-                                                                              { sprintf (temp, "%s%s", yyvsp[-2].code, yyvsp[0].code) ;
-										yyval.code = gen_code (temp) ; }
-#line 1832 "trad3.tab.c"
+                                                                              { if (yyvsp[0].code == "")
+																					sprintf (temp, "%s", yyvsp[-2].code) ;
+																				else
+																					sprintf (temp, "( %s%s )", yyvsp[-2].code, yyvsp[0].code) ;
+																				yyval.code = gen_code (temp) ; }
+#line 1835 "trad3.tab.c"
     break;
 
   case 67: /* operando: NUMBER  */
-#line 236 "trad3.y"
+#line 239 "trad3.y"
                                                      { sprintf (temp, "%d", yyvsp[0].value) ;
 										yyval.code = gen_code (temp) ; }
-#line 1839 "trad3.tab.c"
+#line 1842 "trad3.tab.c"
     break;
 
   case 68: /* operando: '(' expresion ')'  */
-#line 238 "trad3.y"
+#line 241 "trad3.y"
                                                      { yyval = yyvsp[-1] ; }
-#line 1845 "trad3.tab.c"
+#line 1848 "trad3.tab.c"
     break;
 
   case 69: /* maybe: %empty  */
-#line 241 "trad3.y"
+#line 244 "trad3.y"
                                                         { strcpy(temp, ""); 
 											yyval.code = gen_code (temp) ; }
-#line 1852 "trad3.tab.c"
+#line 1855 "trad3.tab.c"
     break;
 
   case 70: /* maybe: '(' arguments ')'  */
-#line 243 "trad3.y"
+#line 246 "trad3.y"
                                                                 { sprintf (temp, " %s", yyvsp[-1].code);
 								yyval.code = gen_code (temp) ; }
-#line 1859 "trad3.tab.c"
+#line 1862 "trad3.tab.c"
     break;
 
   case 71: /* $@7: %empty  */
-#line 245 "trad3.y"
+#line 248 "trad3.y"
                                {  sprintf(identifprev, "%s", identifactual) ; }
-#line 1865 "trad3.tab.c"
+#line 1868 "trad3.tab.c"
     break;
 
   case 72: /* maybe: '[' $@7 expresion ']'  */
-#line 245 "trad3.y"
+#line 248 "trad3.y"
                                                                                                                 { sprintf (temp, "(aref %s %s)", identifprev, yyvsp[-1].code) ; 
 											yyval.code = gen_code (temp) ;}
-#line 1872 "trad3.tab.c"
+#line 1875 "trad3.tab.c"
     break;
 
   case 73: /* arguments: %empty  */
-#line 249 "trad3.y"
+#line 252 "trad3.y"
                                                         { strcpy(temp, ""); 
 											yyval.code = gen_code (temp) ; }
-#line 1879 "trad3.tab.c"
+#line 1882 "trad3.tab.c"
     break;
 
   case 74: /* arguments: arguments_list  */
-#line 251 "trad3.y"
+#line 254 "trad3.y"
                                                 { sprintf (temp, "%s", yyvsp[0].code);
 								yyval.code = gen_code (temp) ; }
-#line 1886 "trad3.tab.c"
+#line 1889 "trad3.tab.c"
     break;
 
   case 75: /* arguments_list: expresion  */
-#line 254 "trad3.y"
+#line 257 "trad3.y"
                                                                                          { sprintf (temp, "%s", yyvsp[0].code);
 															yyval.code = gen_code (temp) ;}
-#line 1893 "trad3.tab.c"
+#line 1896 "trad3.tab.c"
     break;
 
   case 76: /* arguments_list: arguments_list ',' expresion  */
-#line 256 "trad3.y"
+#line 259 "trad3.y"
                                                                                         { sprintf (temp, "%s %s", yyvsp[-2].code, yyvsp[0].code);
 															yyval.code = gen_code (temp); }
-#line 1900 "trad3.tab.c"
+#line 1903 "trad3.tab.c"
     break;
 
 
-#line 1904 "trad3.tab.c"
+#line 1907 "trad3.tab.c"
 
       default: break;
     }
@@ -2093,7 +2096,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 261 "trad3.y"
+#line 264 "trad3.y"
                             // SECCION 4    Codigo en C
 
 //Funciones añadidas
