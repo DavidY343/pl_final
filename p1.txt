@@ -1,0 +1,10 @@
+main ()
+{
+	int a = 1;
+	int b = 1+2;
+	int c;
+	int alpha [0];
+	int beta[32];
+	beta[5] = 123;
+	printf("%d", beta[i]);
+}

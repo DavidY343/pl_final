@@ -25,6 +25,7 @@ char *addNameFun(const char *fun_name) ;
 char temp [2048] ;
 char identifactual [64];
 char funactual [64];
+char identifprev [64];
 // Definitions for explicit attributes
 
 typedef struct s_attr {
@@ -129,7 +130,7 @@ sentencias:	sentencia 				{ sprintf (temp, "%s\n", $1.code) ;
 			;
 
 
-sentencia:    IDENTIF {  sprintf(identifactual, "%s", $1.code) ; } 	varofun 				{ sprintf (temp, "%s", $3.code) ; 
+sentencia:    IDENTIF {  sprintf(identifactual, "%s", $1.code) ; } 	varofun 									{ sprintf (temp, "%s", $3.code) ; 
 																													$$.code = gen_code (temp) ; } 
 			| PRINTF '(' STRING ',' exprs ')' ';' 																{  sprintf (temp, "%s", $5.code) ; 
 																													$$.code = gen_code (temp) ; } ;
@@ -150,6 +151,9 @@ varofun: 	'=' expresion ';' 						{sprintf (temp, "(setf %s %s)", identifactual,
 											$$.code = gen_code (temp) ;}
 	|		'(' arguments ')' ';'					{ sprintf (temp, "%s %s", identifactual, $2.code);
 												$$.code = gen_code (temp) ; }
+	|  '[' {  sprintf(identifprev, "%s", identifactual) ; } expresion ']' '=' expresion ';'			{ sprintf (temp, "(setf (aref %s %s) %s)", identifprev, $3.code, $6.code) ; 
+											$$.code = gen_code (temp) ;}
+
 	;
 sentencias_if: sentencia 				{ sprintf (temp, "%s\n", $1.code) ;  
 										$$.code = gen_code (temp) ; } ;
@@ -162,18 +166,20 @@ else_statement: ELSE '{' sentencias_if '}' { sprintf (temp, "%s", $3.code) ;
 											$$.code = gen_code (temp) ;}
 			;
 
-aux_equalador: IDENTIF equalador					{ sprintf (temp, "(setq %s %s)", $1.code, $2.code) ; 
+aux_equalador: IDENTIF equalador 					{ sprintf (temp, "(setq %s %s)", $1.code, $2.code) ; 
 													$$.code = gen_code (temp) ;
-													addLocalVar($1.code) ;} ;
+													addLocalVar($1.code) ;} 
 			| aux_equalador ',' IDENTIF equalador	 { sprintf (temp, "%s (setq %s %s)", $1.code, $3.code, $4.code) ; 
 													$$.code = gen_code (temp) ;
 													addLocalVar($3.code) ;}
 			;
 
 equalador: 			/*LAMBDA*/			{ sprintf (temp, "0") ; 
-										$$.code = gen_code (temp) ; } ;
+										$$.code = gen_code (temp) ; } 
 			| '=' expresion				{ sprintf (temp, "%s", $2.code) ;
 										$$.code = gen_code (temp) ;}
+			|  '[' expresion ']'			{ sprintf (temp, "(make-array %s)", $2.code) ; 
+											$$.code = gen_code (temp) ;}
 			;
 
 exprs: 			expresion				{ sprintf (temp, "(prin1 %s)", $1.code) ;  
@@ -219,17 +225,19 @@ termino:        operando                           { $$ = $1 ; }
 			|   '!' operando %prec UNARY_SIGN  { sprintf(temp, "(! %s)", $2.code); $$.code = gen_code(temp); }
 			;
 
-operando:       IDENTIF maybefun          { sprintf (temp, "%s%s", $1.code, $2.code) ;
+operando:       IDENTIF {  sprintf(identifactual, "%s", $1.code) ; }  maybe   { sprintf (temp, "%s%s", $1.code, $3.code) ;
 										$$.code = gen_code (temp) ; }
 			|   NUMBER                   { sprintf (temp, "%d", $1.value) ;
 										$$.code = gen_code (temp) ; }
 			|   '(' expresion ')'        { $$ = $2 ; }
 			;
 
-maybefun: /*lambda*/					{ strcpy(temp, ""); 
+maybe: /*lambda*/					{ strcpy(temp, ""); 
 											$$.code = gen_code (temp) ; }
 			| '(' arguments')'			{ sprintf (temp, " %s", $2.code);
 								$$.code = gen_code (temp) ; }
+			|  '[' {  sprintf(identifprev, "%s", identifactual) ; } expresion ']'			{ sprintf (temp, "(aref %s %s)", identifprev, $3.code) ; 
+											$$.code = gen_code (temp) ;}
 			;
 
 arguments: 		/*lamba*/			{ strcpy(temp, ""); 
