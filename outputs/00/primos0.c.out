@@ -1,0 +1,7 @@
+(setq primo 0)
+(setq n 0)
+(setq m 0)
+(setq d 0)
+(setq i 0)
+(setq p 0)
+

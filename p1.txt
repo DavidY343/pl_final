@@ -1,3 +1,8 @@
+myfunc1 (int a, int b)
+{
+	int b;
+}
+
 main ()
 {
 	int a = 1;
@@ -7,4 +12,5 @@ main ()
 	int beta[32];
 	beta[5] = 123;
 	printf("%d", beta[i]);
+	func1 ();
 }

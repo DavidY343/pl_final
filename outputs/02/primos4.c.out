@@ -1,0 +1,17 @@
+(setq d 0)
+(setq n 0)
+(setq m 0)
+(defun esprimo (n)
+(setq esprimo_primo 0)
+(setq esprimo_d 0)
+(setf esprimo_primo 1)
+(setf esprimo_d 2)
+(loop while (&& (< esprimo_d n) (== esprimo_primo 1)) do 
+(if (== (mod n esprimo_d) 0)
+(setf esprimo_primo 0)
+)
+(setf esprimo_d (+ esprimo_d 1))
+)
+return-from esprimo esprimo_primo
+)
+

@@ -1,0 +1,9 @@
+(defun mimax (a b)
+(if (>= a b)
+(progn((prin1 a)
+(print " ")
+)(progn((prin1 b)
+(print " ")
+))
+)
+

@@ -1,0 +1,6 @@
+(defun cuadrado (a)
+(setq cuadrado_c 0)
+(setf a (* a a))
+return-from cuadrado cuadrado_c
+)
+

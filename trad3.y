@@ -106,7 +106,8 @@ Funcion:    IDENTIF {  sprintf(funactual, "%s", $1.code) ; }'(' params ')' '{' s
 										free(my_temp); }
 			;
 
-params: 		/*lamba*/			{ ; }
+params: 		/*lamba*/			{ strcpy(temp, ""); 
+											$$.code = gen_code (temp) ; }
 	| param_list			{ sprintf (temp, "%s", $1.code);
 								$$.code = gen_code (temp) ; }
 	;
@@ -182,11 +183,16 @@ equalador: 			/*LAMBDA*/			{ sprintf (temp, "0") ;
 											$$.code = gen_code (temp) ;}
 			;
 
-exprs: 			expresion				{ sprintf (temp, "(prin1 %s)", $1.code) ;  
+exprs: 			expresionostring				{ sprintf (temp, "(prin1 %s)", $1.code) ;  
 										$$.code = gen_code (temp) ;}
-			|	exprs ',' expresion 	{ sprintf (temp, "%s (prin1 %s)", $1.code, $3.code) ;  
+			|	exprs ',' expresionostring	{ sprintf (temp, "%s (prin1 %s)", $1.code, $3.code) ;  
 										$$.code = gen_code (temp) ;}
 			;
+
+expresionostring: expresion { sprintf (temp, "%s", $1.code) ;  
+										$$.code = gen_code (temp) ;}
+				| STRING	{ sprintf (temp, "%s", $1.code) ;  
+										$$.code = gen_code (temp) ;}
 		
 expresion:      termino                  { $$ = $1 ; }
 			|   expresion '+' expresion  { sprintf (temp, "(+ %s %s)", $1.code, $3.code) ;
@@ -245,11 +251,13 @@ arguments: 		/*lamba*/			{ strcpy(temp, "");
 	| arguments_list			{ sprintf (temp, "%s", $1.code);
 								$$.code = gen_code (temp) ; }
 	;
-arguments_list:  IDENTIF								 { sprintf (temp, "%s", $1.code);
+arguments_list:  expresion								 { sprintf (temp, "%s", $1.code);
 															$$.code = gen_code (temp) ;}
-	|		arguments_list ',' 	 IDENTIF		 		{ sprintf (temp, "%s %s", $1.code, $3.code);
+	|		arguments_list ',' 	 expresion		 		{ sprintf (temp, "%s %s", $1.code, $3.code);
 															$$.code = gen_code (temp); }
 	;
+
+
 %%                            // SECCION 4    Codigo en C
 
 //Funciones añadidas
