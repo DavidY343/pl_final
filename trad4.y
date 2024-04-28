@@ -15,17 +15,17 @@ char *mi_malloc (int) ;
 char *gen_code (char *) ;
 char *int_to_string (int) ;
 char *char_to_string (char) ;
-// funcoines propias
-void addLocalVar(char *var_name);
+// funciones propias
+void add_local_var(char *var_name);
 void print_localvar_list() ;
 void free_localvar_list() ;
-void updateLocalVarNFun(const char *fun_name) ;
-char *addNameFun(const char *fun_name) ;
+void add_name_func(const char *fun_name) ;
+char *concat_name_to_func(const char *fun_name) ;
 //
 char temp [2048] ;
-char identifactual [64];
-char funactual [64];
-char identifprev [64];
+char identif_actual [64];
+char fun_actual [64];
+char identif_prev [64];
 // Definitions for explicit attributes
 
 typedef struct s_attr {
@@ -42,7 +42,7 @@ typedef struct s_localvar
 	struct s_localvar *next;
 } t_localvar;
 
-t_localvar *tablaLocalVar = NULL;
+t_localvar *tabla_local_var = NULL;
 %}
 
 
@@ -79,193 +79,202 @@ t_localvar *tablaLocalVar = NULL;
 
 %%                            // Seccion 3 Gramatica - Semantico
 
-axioma:       DeclVariables DefFunciones { ; }
-		| DefFunciones { ; } 
+axioma:  decl_variables def_funciones 					{ free_localvar_list(); }
+		| def_funciones 								{ free_localvar_list(); } 
 	;
 
 
-DeclVariables: 	INTEGER aux_equalador ';' { updateLocalVarNFun("GLOBAL");printf ("%s\n", $2.code) ;}  r_exprvar
+decl_variables: INTEGER declaracion ';'	 				{ add_name_func("GLOBAL");printf ("%s\n", $2.code) ;}  
+						r_exprvar
 			;
 
-r_exprvar:			/*LAMBDA*/				{ ; }
-			| DeclVariables					{ ; }
+r_exprvar:		/*LAMBDA*/								{ ; }
+			| decl_variables							{ ; }
 			;
 
-DefFunciones: ListFunciones MainFunc     { printf ("%s\n", $2.code) ;  }
+def_funciones: list_funciones main_func     			{ printf ("%s\n", $2.code) ;  }
 			;
 
-ListFunciones:    /*LAMBDA*/            { ; } ;
-			| ListFunciones Funcion     { printf ("%s\n", $2.code) ;} 
+list_funciones:  /*LAMBDA*/            					{ ; }
+			| list_funciones funcion    			 	{ printf ("%s\n", $2.code) ;} 
 			;
 
-Funcion:    IDENTIF {  sprintf(funactual, "%s", $1.code) ; }'(' params ')' '{' sentencias '}' { updateLocalVarNFun($1.code);
-										 sprintf (temp, "(defun %s (%s)\n%s)", $1.code, $4.code, $7.code) ;
-										 char *my_temp = addNameFun($1.code);
-										strcpy(temp, my_temp);
-										$$.code = gen_code (temp) ; 
-										free(my_temp); }
+funcion:    IDENTIF 									{  sprintf(fun_actual, "%s", $1.code) ; }
+					'(' params ')' '{' sentencias '}' 	{ add_name_func($1.code);
+										 					sprintf (temp, "(defun %s (%s)\n%s)", $1.code, $4.code, $7.code) ;
+										 					char *my_temp = concat_name_to_func($1.code);
+															strcpy(temp, my_temp);
+															$$.code = gen_code (temp) ; 
+															free(my_temp); }
 			;
 
-params: 		/*lamba*/			{ strcpy(temp, ""); 
-											$$.code = gen_code (temp) ; }
-	| param_list			{ sprintf (temp, "%s", $1.code);
-								$$.code = gen_code (temp) ; }
-	;
-param_list: INTEGER IDENTIF								 { sprintf (temp, "%s", $2.code);
+params: 		/*lamba*/								{ strcpy(temp, ""); 
+															$$.code = gen_code (temp) ; }
+			| param_list								{ sprintf (temp, "%s", $1.code);
+															$$.code = gen_code (temp) ; }
+			;
+param_list: INTEGER IDENTIF								{ sprintf (temp, "%s", $2.code);
 															$$.code = gen_code (temp) ;}
-	|		param_list ',' 	INTEGER IDENTIF		 		{ sprintf (temp, "%s %s", $1.code, $4.code);
+			| param_list ',' INTEGER IDENTIF		 		{ sprintf (temp, "%s %s", $1.code, $4.code);
 															$$.code = gen_code (temp); }
 	;
-MainFunc:  MAIN {  sprintf(funactual, "%s", $1.code) ; } '(' ')' '{' sentencias '}' { updateLocalVarNFun("main"); 
-										sprintf (temp, "(defun main ()\n%s)", $6.code) ; 
-										char *my_temp = addNameFun("main");
-										strcpy(temp, my_temp);
-										$$.code = gen_code (temp) ; 
-										free(my_temp); }
+main_func:  MAIN 										{sprintf(fun_actual, "%s", $1.code) ; } 
+					'(' ')' '{' sentencias '}' 			{ add_name_func("main"); 
+															sprintf (temp, "(defun main ()\n%s)", $6.code) ; 
+															char *my_temp = concat_name_to_func("main");
+															strcpy(temp, my_temp);
+															$$.code = gen_code (temp) ; 
+															free(my_temp); }
 			;
 
-sentencias:	sentencia 				{ sprintf (temp, "%s\n", $1.code) ;  
-										$$.code = gen_code (temp) ; } ;
-			| sentencias sentencia  { sprintf (temp, "%s%s\n", $1.code, $2.code) ;  
-										$$.code = gen_code (temp) ;}
+sentencias:	sentencia 									{ sprintf (temp, "%s\n", $1.code) ;  
+															$$.code = gen_code (temp) ; } ;
+			| sentencias sentencia  					{ sprintf (temp, "%s%s\n", $1.code, $2.code) ;  
+															$$.code = gen_code (temp) ;}
 			;
 
 
-sentencia:    IDENTIF {  sprintf(identifactual, "%s", $1.code) ; } 	varofun 									{ sprintf (temp, "%s", $3.code) ; 
+sentencia:  IDENTIF {  sprintf(identif_actual, "%s", $1.code) ; } 	sentencia_aux 								{ sprintf (temp, "%s", $3.code) ; 
 																													$$.code = gen_code (temp) ; } 
 			| PRINTF '(' STRING ',' exprs ')' ';' 																{  sprintf (temp, "%s", $5.code) ; 
-																													$$.code = gen_code (temp) ; } ;
+																													$$.code = gen_code (temp) ; }
 			| PUTS '(' STRING ')'	';'																			{ sprintf (temp, "(print \"%s\")", $3.code) ; 
 																													$$.code = gen_code (temp) ; } 
 			| WHILE '(' expresion ')' '{' sentencias '}' 														{sprintf (temp, "(loop while %s do \n%s)", $3.code, $6.code) ; 
 																													$$.code = gen_code (temp) ;} 
 			| FOR '(' IDENTIF '=' NUMBER ';' expresion ';' IDENTIF '=' expresion ')' '{' sentencias '}'			{sprintf (temp, "(setf %s %d)\n(loop while %s do \n%s(setf %s %s))", $3.code, $5.value, $7.code, $14.code, $9.code, $11.code) ; 
 																													$$.code = gen_code (temp) ;} 
-			| INTEGER aux_equalador	';'	 																		{  $$ = $2; }
+			| INTEGER declaracion	';'	 																		{  $$ = $2; }
 			| IF '(' expresion ')' '{'sentencias_if '}'	else_statement 											{sprintf (temp, "(if %s\n%s%s)", $3.code, $6.code, $8.code) ; 
 																													$$.code = gen_code (temp) ;}
-			| RETURN expresion ';'																				{sprintf (temp, "return-from %s %s", funactual, $2.code) ; 
+			| RETURN expresion ';'																				{sprintf (temp, "return-from %s %s", fun_actual, $2.code) ; 
 																													$$.code = gen_code (temp) ; } 
 			;	
 
-varofun: 	'=' expresion ';' 						{sprintf (temp, "(setf %s %s)", identifactual, $2.code) ;
-											$$.code = gen_code (temp) ;}
-	|		'(' arguments ')' ';'					{ sprintf (temp, "%s %s", identifactual, $2.code);
-												$$.code = gen_code (temp) ; }
-	|  '[' {  sprintf(identifprev, "%s", identifactual) ; } expresion ']' '=' expresion ';'			{ sprintf (temp, "(setf (aref %s %s) %s)", identifprev, $3.code, $6.code) ; 
-											$$.code = gen_code (temp) ;}
-
-	;
-sentencias_if: sentencia 				{ sprintf (temp, "%s\n", $1.code) ;  
-										$$.code = gen_code (temp) ; } ;
-			| sentencias_if sentencia  { sprintf (temp, "(progn(%s%s\n)", $1.code, $2.code) ;  
-										$$.code = gen_code (temp) ;}
-			;
-else_statement: ELSE '{' sentencias_if '}' { sprintf (temp, "%s", $3.code) ; 
-											$$.code = gen_code (temp) ;} ;
-			|	/*LAMBDA*/					{ strcpy(temp, ""); 
-											$$.code = gen_code (temp) ;}
-			;
-
-aux_equalador: IDENTIF equalador 					{ sprintf (temp, "(setq %s %s)", $1.code, $2.code) ; 
-													$$.code = gen_code (temp) ;
-													addLocalVar($1.code) ;} 
-			| aux_equalador ',' IDENTIF equalador	 { sprintf (temp, "%s (setq %s %s)", $1.code, $3.code, $4.code) ; 
-													$$.code = gen_code (temp) ;
-													addLocalVar($3.code) ;}
-			;
-
-equalador: 			/*LAMBDA*/			{ sprintf (temp, "0") ; 
-										$$.code = gen_code (temp) ; } 
-			| '=' expresion				{ sprintf (temp, "%s", $2.code) ;
-										$$.code = gen_code (temp) ;}
-			|  '[' expresion ']'			{ sprintf (temp, "(make-array %s)", $2.code) ; 
-											$$.code = gen_code (temp) ;}
-			;
-
-exprs: 			expresionostring				{ sprintf (temp, "(prin1 %s)", $1.code) ;  
-										$$.code = gen_code (temp) ;}
-			|	exprs ',' expresionostring	{ sprintf (temp, "%s (prin1 %s)", $1.code, $3.code) ;  
-										$$.code = gen_code (temp) ;}
-			;
-
-expresionostring: expresion { sprintf (temp, "%s", $1.code) ;  
-										$$.code = gen_code (temp) ;}
-				| STRING	{ sprintf (temp, "%s", $1.code) ;  
-										$$.code = gen_code (temp) ;}
-		
-expresion:      termino                  { $$ = $1 ; }
-			|   expresion '+' expresion  { sprintf (temp, "(+ %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion '-' expresion  { sprintf (temp, "(- %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion '*' expresion  { sprintf (temp, "(* %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion '/' expresion  { sprintf (temp, "(/ %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion '<' expresion  { sprintf (temp, "(< %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }															
-			|   expresion '>' expresion  { sprintf (temp, "(> %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion AND expresion  { sprintf (temp, "(&& %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion OR expresion  { sprintf (temp, "(|| %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion EQUAL expresion  { sprintf (temp, "(== %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion DIFF expresion  { sprintf (temp, "(!= %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion LESSEQ expresion  { sprintf (temp, "(<= %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion MOREEQ expresion  { sprintf (temp, "(>= %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			|   expresion '%' expresion  { sprintf (temp, "(mod %s %s)", $1.code, $3.code) ;
-										$$.code = gen_code (temp) ; }
-			;
-
-termino:        operando                           { $$ = $1 ; }                          
-			|   '+' operando %prec UNARY_SIGN      { sprintf (temp, "(+ %s)", $2.code) ;
-													$$.code = gen_code (temp) ; }
-			|   '-' operando %prec UNARY_SIGN      { sprintf (temp, "(- %s)", $2.code) ;
-													$$.code = gen_code (temp) ; }   
-			|   '!' operando %prec UNARY_SIGN  { sprintf(temp, "(! %s)", $2.code); $$.code = gen_code(temp); }
-			;
-
-operando:       IDENTIF {  sprintf(identifactual, "%s", $1.code) ; }  maybe   { if ($3.code == "")
-																					sprintf (temp, "%s", $1.code) ;
-																				else
-																					sprintf (temp, "( %s%s )", $1.code, $3.code) ;
-																				$$.code = gen_code (temp) ; }
-			|   NUMBER                   { sprintf (temp, "%d", $1.value) ;
-										$$.code = gen_code (temp) ; }
-			|   '(' expresion ')'        { $$ = $2 ; }
-			;
-
-maybe: /*lambda*/					{ strcpy(temp, ""); 
-											$$.code = gen_code (temp) ; }
-			| '(' arguments')'			{ sprintf (temp, " %s", $2.code);
-								$$.code = gen_code (temp) ; }
-			|  '[' {  sprintf(identifprev, "%s", identifactual) ; } expresion ']'			{ sprintf (temp, "(aref %s %s)", identifprev, $3.code) ; 
-											$$.code = gen_code (temp) ;}
-			;
-
-arguments: 		/*lamba*/			{ strcpy(temp, ""); 
-											$$.code = gen_code (temp) ; }
-	| arguments_list			{ sprintf (temp, "%s", $1.code);
-								$$.code = gen_code (temp) ; }
-	;
-arguments_list:  expresion								 { sprintf (temp, "%s", $1.code);
+sentencia_aux: '=' expresion ';' 						{sprintf (temp, "(setf %s %s)", identif_actual, $2.code) ;
 															$$.code = gen_code (temp) ;}
-	|		arguments_list ',' 	 expresion		 		{ sprintf (temp, "%s %s", $1.code, $3.code);
-															$$.code = gen_code (temp); }
+			| '(' arguments ')' ';'						{ sprintf (temp, "%s %s", identif_actual, $2.code);
+															$$.code = gen_code (temp) ; }
+			| '[' 										{  sprintf(identif_prev, "%s", identif_actual) ; } 
+						expresion ']' '=' expresion ';'	{ sprintf (temp, "(setf (aref %s %s) %s)", identif_prev, $3.code, $6.code) ; 
+															$$.code = gen_code (temp) ;}
+
 	;
+sentencias_if: sentencia 								{ sprintf (temp, "%s\n", $1.code) ;  
+															$$.code = gen_code (temp) ; }
+			| sentencias_if sentencia  					{ sprintf (temp, "(progn(%s%s\n)", $1.code, $2.code) ;  
+															$$.code = gen_code (temp) ;}
+			;
+else_statement: ELSE '{' sentencias_if '}' 				{ sprintf (temp, "%s", $3.code) ; 
+															$$.code = gen_code (temp) ;} ;
+			|	/*LAMBDA*/								{ strcpy(temp, ""); 
+															$$.code = gen_code (temp) ;}
+			;
+
+declaracion: IDENTIF inicializacion 					{ sprintf (temp, "(setq %s %s)", $1.code, $2.code) ; 
+															$$.code = gen_code (temp) ;
+															add_local_var($1.code) ;} 
+			| declaracion ',' IDENTIF inicializacion	{ sprintf (temp, "%s (setq %s %s)", $1.code, $3.code, $4.code) ; 
+															$$.code = gen_code (temp) ;
+															add_local_var($3.code) ;}
+			;
+
+inicializacion: /*LAMBDA*/								{ sprintf (temp, "0") ; 
+															$$.code = gen_code (temp) ; } 
+			| '=' expresion								{ sprintf (temp, "%s", $2.code) ;
+															$$.code = gen_code (temp) ;}
+			|  '[' expresion ']'						{ sprintf (temp, "(make-array %s)", $2.code) ; 
+															$$.code = gen_code (temp) ;}
+			;
+
+exprs: 		expresion_o_string							{ sprintf (temp, "(prin1 %s)", $1.code) ;  
+															$$.code = gen_code (temp) ;}
+			| exprs ',' expresion_o_string				{ sprintf (temp, "%s (prin1 %s)", $1.code, $3.code) ;  
+															$$.code = gen_code (temp) ;}
+			;
+
+expresion_o_string: expresion 							{ sprintf (temp, "%s", $1.code) ;  
+															$$.code = gen_code (temp) ;}
+			| STRING									{ sprintf (temp, "%s", $1.code) ;  
+															$$.code = gen_code (temp) ;}
+		
+expresion:      termino                  				{ $$ = $1 ; }
+			|   expresion '+' expresion  				{ sprintf (temp, "(+ %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion '-' expresion  				{ sprintf (temp, "(- %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion '*' expresion  				{ sprintf (temp, "(* %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion '/' expresion  				{ sprintf (temp, "(/ %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion '<' expresion  				{ sprintf (temp, "(< %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }															
+			|   expresion '>' expresion  				{ sprintf (temp, "(> %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion AND expresion  				{ sprintf (temp, "(&& %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion OR expresion  				{ sprintf (temp, "(|| %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion EQUAL expresion  				{ sprintf (temp, "(== %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion DIFF expresion  				{ sprintf (temp, "(!= %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion LESSEQ expresion  			{ sprintf (temp, "(<= %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion MOREEQ expresion  			{ sprintf (temp, "(>= %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   expresion '%' expresion  				{ sprintf (temp, "(mod %s %s)", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			;
+
+termino:        operando                           		{ $$ = $1 ; }                          
+			|   '+' operando %prec UNARY_SIGN      		{ sprintf (temp, "(+ %s)", $2.code) ;
+															$$.code = gen_code (temp) ; }
+			|   '-' operando %prec UNARY_SIGN      		{ sprintf (temp, "(- %s)", $2.code) ;
+															$$.code = gen_code (temp) ; }   
+			|   '!' operando %prec UNARY_SIGN  			{ sprintf(temp, "(! %s)", $2.code); 
+															$$.code = gen_code(temp) ; }
+			;
+
+operando:   IDENTIF 									{  sprintf(identif_actual, "%s", $1.code) ; }  
+					aux_identif   						{ if ($3.code == "")
+																sprintf (temp, "%s", $1.code) ;
+															else
+																sprintf (temp, "( %s%s )", $1.code, $3.code) ;
+															$$.code = gen_code (temp) ; }
+			|   NUMBER                   				{ sprintf (temp, "%d", $1.value) ;
+															$$.code = gen_code (temp) ; }
+			|   '(' expresion ')'        				{ $$ = $2 ; }
+			;
+
+aux_identif: /*lambda*/									{ strcpy(temp, ""); 
+															$$.code = gen_code (temp) ; }
+			| '(' arguments')'							{ sprintf (temp, " %s", $2.code);
+															$$.code = gen_code (temp) ; }
+			|  '[' 										{ sprintf(identif_prev, "%s", identif_actual) ; } 
+					expresion ']'						{ sprintf (temp, "(aref %s %s)", identif_prev, $3.code) ; 
+															$$.code = gen_code (temp) ;}
+			;
+
+arguments: 		/*lamba*/								{ strcpy(temp, ""); 
+															$$.code = gen_code (temp) ; }
+			| arguments_list							{ sprintf (temp, "%s", $1.code);
+															$$.code = gen_code (temp) ; }
+			;
+
+arguments_list:  expresion								{ sprintf (temp, "%s", $1.code);
+															$$.code = gen_code (temp) ;}
+			| arguments_list ',' expresion		 		{ sprintf (temp, "%s %s", $1.code, $3.code);
+															$$.code = gen_code (temp); }
+			;
 
 
 %%                            // SECCION 4    Codigo en C
 
 //Funciones añadidas
+// Imprime la lista de varibles locales (para depuracion)
 void print_localvar_list() {
-    t_localvar *current = tablaLocalVar;
+    t_localvar *current = tabla_local_var;
     printf("Lista de variables locales:\n");
     while (current != NULL) {
         printf("Variable: %s, Función: %s\n", current->var, current->n_fun);
@@ -273,7 +282,8 @@ void print_localvar_list() {
     }
 }
 
-void addLocalVar(char *var_name) {
+// Añade la variable a la tabla de variables
+void add_local_var(char *var_name) {
     t_localvar *new_localvar = (t_localvar *)malloc(sizeof(t_localvar));
     if (new_localvar == NULL) {
         printf("Error: No se pudo asignar memoria para la variable local.\n");
@@ -282,10 +292,10 @@ void addLocalVar(char *var_name) {
     strcpy(new_localvar->var, var_name);
     new_localvar->next = NULL;
 
-    if (tablaLocalVar == NULL) {
-        tablaLocalVar = new_localvar;
+    if (tabla_local_var == NULL) {
+        tabla_local_var = new_localvar;
     } else {
-        t_localvar *current = tablaLocalVar;
+        t_localvar *current = tabla_local_var;
         while (current->next != NULL) {
             current = current->next;
         }
@@ -293,8 +303,9 @@ void addLocalVar(char *var_name) {
     }
 }
 
-void updateLocalVarNFun(const char *fun_name) {
-    t_localvar *current = tablaLocalVar;
+// Añade el nombre de la función a la que pertenece cada variable a la tabla de variables
+void add_name_func(const char *fun_name) {
+    t_localvar *current = tabla_local_var;
     while (current != NULL) {
         if (current->n_fun[0] == '\0') {
             strcpy(current->n_fun, fun_name);
@@ -303,17 +314,20 @@ void updateLocalVarNFun(const char *fun_name) {
     }
 }
 
+// Libera la memoria de la tabla de variables
 void free_localvar_list() {
-    t_localvar *current = tablaLocalVar;
+    t_localvar *current = tabla_local_var;
     while (current != NULL) {
         t_localvar *temp = current;
         current = current->next;
         free(temp);
     }
-    tablaLocalVar = NULL; // Establecer el puntero de la lista a NULL para indicar que la lista está vacía
+    tabla_local_var = NULL; // Establecer el puntero de la lista a NULL para indicar que la lista está vacía
 }
 
-char *addNameFun(const char *fun_name)
+
+// Añade el nombre de la funcion a las variables locales
+char *concat_name_to_func(const char *fun_name)
 {
     size_t initial_len = strlen(temp);
     size_t buffer_size = initial_len + 500; // Tamaño inicial del buffer
@@ -328,7 +342,7 @@ char *addNameFun(const char *fun_name)
     strncpy(result, temp, buffer_size); // Copiar el texto original al resultado
     result[buffer_size - 1] = '\0'; // Asegurar nulidad
 
-    t_localvar *current = tablaLocalVar;
+    t_localvar *current = tabla_local_var;
     while (current != NULL) {
 			// printf("%s %s %d\n", current->n_fun, fun_name, strcmp(current->n_fun, fun_name));
         if (strcmp(current->n_fun, fun_name) == 0) {
@@ -375,7 +389,7 @@ char *addNameFun(const char *fun_name)
 
     return result;
 }
-//
+
 int n_line = 1 ;
 
 int yyerror (mensaje)
