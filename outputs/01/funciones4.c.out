@@ -1,9 +1,9 @@
 (defun cuadrado (n)
-(prin1 n) (prin1  ) (prin1 (* n n))
+(prin1 n) (prin1 " ") (prin1 (* n n))
 (print "")
 )
 (defun main ()
-cuadrado 4
-cuadrado 10
+(cuadrado 4)
+(cuadrado 10)
 )
  (main)

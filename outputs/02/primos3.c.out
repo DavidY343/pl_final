@@ -6,23 +6,23 @@
 (setf m 100)
 (setf main_i 1)
 (loop while (< main_i m) do 
-(setf (aref primos main_i) (null))
+(setf (aref primos main_i) 1)
 (setf main_i (+ main_i 1))
 )
 (setf main_i 2)
 (loop while (< main_i m) do 
 (setf main_v (* main_i 2))
 (loop while (< main_v m) do 
-(setf (aref primos main_v) (null))
+(setf (aref primos main_v) 0)
 (setf main_v (+ main_v main_i))
 )
 (setf main_i (+ main_i 1))
 )
 (setf main_i 1)
 (loop while (< main_i m) do 
-(if (= primos(aref main_i main_i) 1)
-(prin1 main_i) (prin1  )
-)
+(if (= (aref primos main_i) 1)
+(progn (prin1 main_i) (prin1 " ")
+) )
 (setf main_i (+ main_i 1))
 )
 )

@@ -25,7 +25,6 @@ char *concat_name_to_func(const char *fun_name) ;
 char temp [2048] ;
 char identif_1 [64];
 char identif_2 [64];
-char identif_3 [64];
 char fun_actual [64];
 
 // Definitions for explicit attributes
@@ -147,26 +146,26 @@ sentencia:  IDENTIF {  sprintf(identif_1, "%s", $1.code) ; } 	sentencia_aux 				
 			| FOR '(' IDENTIF '=' NUMBER ';' expresion ';' IDENTIF '=' expresion ')' '{' sentencias '}'			{sprintf (temp, "(setf %s %d)\n(loop while %s do \n%s(setf %s %s))", $3.code, $5.value, $7.code, $14.code, $9.code, $11.code) ; 
 																													$$.code = gen_code (temp) ;} 
 			| INTEGER declaracion	';'	 																		{  $$ = $2; }
-			| IF '(' expresion ')' '{'sentencias_if '}'	else_statement 											{sprintf (temp, "(if %s\n%s%s)", $3.code, $6.code, $8.code) ; 
+			| IF '(' expresion ')' '{'sentencias_if '}'	else_statement 											{sprintf (temp, "(if %s\n(progn %s) %s)", $3.code, $6.code, $8.code) ; 
 																													$$.code = gen_code (temp) ;}
-			| RETURN expresion ';'																				{sprintf (temp, "return-from %s %s", fun_actual, $2.code) ; 
+			| RETURN expresion ';'																				{sprintf (temp, "(return-from %s %s)", fun_actual, $2.code) ; 
 																													$$.code = gen_code (temp) ; } 
 			;	
 
 sentencia_aux: '=' expresion ';' 						{sprintf (temp, "(setf %s %s)", identif_1, $2.code) ;
 															$$.code = gen_code (temp) ;}
-			| '(' arguments ')' ';'						{ sprintf (temp, "%s %s", identif_1, $2.code);
+			| '(' arguments ')' ';'						{ sprintf (temp, "(%s %s)", identif_1, $2.code);
 															$$.code = gen_code (temp) ; }
-			| '[' expresion ']' '=' expresion ';'		{ sprintf (temp, "(setf (aref %s %s) %s)", identif_1, $3.code, $6.code) ; 
+			| '[' expresion ']' '=' expresion ';'		{ sprintf (temp, "(setf (aref %s %s) %s)", identif_1, $2.code, $5.code) ; 
 															$$.code = gen_code (temp) ;}
 
 	;
 sentencias_if: sentencia 								{ sprintf (temp, "%s\n", $1.code) ;  
 															$$.code = gen_code (temp) ; }
-			| sentencias_if sentencia  					{ sprintf (temp, "(progn(%s%s\n)", $1.code, $2.code) ;  
+			| sentencias_if sentencia  					{ sprintf (temp, "%s%s", $1.code, $2.code) ;  
 															$$.code = gen_code (temp) ;}
 			;
-else_statement: ELSE '{' sentencias_if '}' 				{ sprintf (temp, "%s", $3.code) ; 
+else_statement: ELSE '{' sentencias_if '}' 				{ sprintf (temp, "(progn %s)", $3.code) ; 
 															$$.code = gen_code (temp) ;} ;
 			|	/*LAMBDA*/								{ strcpy(temp, ""); 
 															$$.code = gen_code (temp) ;}
@@ -196,7 +195,7 @@ exprs: 		expresion_o_string							{ sprintf (temp, "(prin1 %s)", $1.code) ;
 
 expresion_o_string: expresion 							{ sprintf (temp, "%s", $1.code) ;  
 															$$.code = gen_code (temp) ;}
-			| STRING									{ sprintf (temp, "%s", $1.code) ;  
+			| STRING									{ sprintf (temp, "\"%s\"", $1.code) ;  
 															$$.code = gen_code (temp) ;}
 		
 expresion:      termino                  				{ $$ = $1 ; }
@@ -212,9 +211,9 @@ expresion:      termino                  				{ $$ = $1 ; }
 															$$.code = gen_code (temp) ; }															
 			|   expresion '>' expresion  				{ sprintf (temp, "(> %s %s)", $1.code, $3.code) ;
 															$$.code = gen_code (temp) ; }
-			|   expresion AND expresion  				{ sprintf (temp, "(&& %s %s)", $1.code, $3.code) ;
+			|   expresion AND expresion  				{ sprintf (temp, "(and %s %s)", $1.code, $3.code) ;
 															$$.code = gen_code (temp) ; }
-			|   expresion OR expresion  				{ sprintf (temp, "(|| %s %s)", $1.code, $3.code) ;
+			|   expresion OR expresion  				{ sprintf (temp, "(or %s %s)", $1.code, $3.code) ;
 															$$.code = gen_code (temp) ; }
 			|   expresion EQUAL expresion  				{ sprintf (temp, "(= %s %s)", $1.code, $3.code) ;
 															$$.code = gen_code (temp) ; }
@@ -237,28 +236,15 @@ termino:        operando                           		{ $$ = $1 ; }
 															$$.code = gen_code(temp) ; }
 			;
 
-operando:   IDENTIF 									{  sprintf(identif_2, "%s", $1.code) ; }  
-					aux_identif   						{ 
-															if ($3.code == "")
-															{
-																sprintf (temp, "%s", $1.code) ;
-															}
-															else
-															{
-																sprintf (temp, "%s%s", $1.code, $3.code) ;
-															}
+operando:   	IDENTIF   								{ sprintf (temp, "%s", $1.code) ; 
 															$$.code = gen_code (temp) ; }
+			| IDENTIF '(' arguments')'					{ sprintf (temp, "(%s %s)", $1.code, $3.code);
+															$$.code = gen_code (temp) ; }
+			| IDENTIF '[' expresion ']'					{ sprintf (temp, "(aref %s %s)", $1.code, $3.code) ; 
+															$$.code = gen_code (temp) ;}				
 			|   NUMBER                   				{ sprintf (temp, "%d", $1.value) ;
 															$$.code = gen_code (temp) ; }
 			|   '(' expresion ')'        				{ $$ = $2 ; }
-			;
-
-aux_identif: /*lambda*/									{ strcpy(temp, ""); 
-															$$.code = gen_code (temp) ; }
-			| '(' arguments')'							{ sprintf (temp, "%s", $2.code);
-															$$.code = gen_code (temp) ; }
-			|  '[' expresion ']'						{ sprintf (temp, "(aref %s %s)", identif_2, $3.code) ; 
-															$$.code = gen_code (temp) ;}
 			;
 
 arguments: 		/*lamba*/								{ strcpy(temp, ""); 

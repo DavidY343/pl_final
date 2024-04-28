@@ -6,25 +6,25 @@
 (setq esprimo_d 0)
 (setf esprimo_primo 1)
 (setf esprimo_d 2)
-(loop while (&& (< esprimo_d n) (= esprimo_primo 1)) do 
+(loop while (and (< esprimo_d n) (= esprimo_primo 1)) do 
 (if (= (mod n esprimo_d) 0)
-(setf esprimo_primo 0)
-)
+(progn (setf esprimo_primo 0)
+) )
 (setf esprimo_d (+ esprimo_d 1))
 )
-return-from esprimo esprimo_primo
+(return-from esprimo esprimo_primo)
 )
 (defun listaprimos (n m)
 (loop while (< n m) do 
-(if (/= esprimon 0)
-(prin1 n) (prin1  )
-)
+(if (/= (esprimo n) 0)
+(progn (prin1 n) (prin1 " ")
+) )
 (setf n (+ n 1))
 )
 )
 (defun main ()
 (setq main_d 0)
 (setq main_i 0)
-listaprimos 1 100
+(listaprimos 1 100)
 )
  (main)

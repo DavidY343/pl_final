@@ -2,6 +2,6 @@
 (print "Una prueba")
 )
 (defun main ()
-mifuncion 
+(mifuncion )
 )
  (main)
