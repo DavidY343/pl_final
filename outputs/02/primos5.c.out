@@ -9,19 +9,19 @@
 (setf n 1)
 (setf m 100)
 (setf main_i 1)
-(loop while (<= ( main_i ) ( m )) do 
+(loop while (<= main_i m) do 
 (setf main_d 2)
 (setf primo 1)
-(loop while (&& (== ( primo ) 1) (< ( main_d ) ( main_i ))) do 
-(setf main_d (mod ( main_i ) ( main_d )))
-(if (== ( main_p ) 0)
+(loop while (&& (= primo 1) (< main_d main_i)) do 
+(setf main_p (mod main_i main_d))
+(if (= main_p 0)
 (setf primo 0)
 )
-(setf main_d (+ ( main_d ) 1))
+(setf main_d (+ main_d 1))
 )
-(if (== ( primo ) 1)
-(prin1 ( main_i )) (prin1  )
+(if (= primo 1)
+(prin1 main_i) (prin1  )
 )
-(setf main_i (+ ( main_i ) 1)))
+(setf main_i (+ main_i 1)))
 )
  (main)

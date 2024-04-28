@@ -1,5 +1,5 @@
 (defun cuadrado (n)
-(prin1 ( n )) (prin1  ) (prin1 (* ( n ) ( n )))
+(prin1 n) (prin1  ) (prin1 (* n n))
 (print "")
 )
 (defun main ()

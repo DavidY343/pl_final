@@ -3,10 +3,10 @@
 (defun main ()
 (setf n 7)
 (setf resultado 1)
-(loop while (> ( n ) 1) do 
-(setf n (* ( resultado ) ( n )))
-(setf n (- ( n ) 1))
+(loop while (> n 1) do 
+(setf resultado (* resultado n))
+(setf n (- n 1))
 )
-(prin1 ( resultado ))
+(prin1 resultado)
 )
  (main) 

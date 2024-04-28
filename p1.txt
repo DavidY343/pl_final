@@ -1,16 +1,11 @@
-myfunc1 (int a, int b)
-{
-	int b;
-}
+int resultado ;
+int n ;
 
-main ()
+main () 
 {
-	int a = 1;
-	int b = 1+2;
-	int c;
-	int alpha [0];
-	int beta[32];
-	beta[5] = 123;
-	printf("%d", beta[i]);
-	func1 ();
+    n = 7 ;
+    resultado = 1 ;
+    resultado = resultado * n ;
+    printf("%d\n", resultado) ;
+
 }
