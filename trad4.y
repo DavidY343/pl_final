@@ -24,7 +24,6 @@ char *concat_name_to_func(const char *fun_name) ;
 //
 char temp [2048] ;
 char identif_1 [64];
-char identif_2 [64];
 char fun_actual [64];
 
 // Definitions for explicit attributes
@@ -97,7 +96,7 @@ def_funciones: list_funciones main_func     			{ printf ("%s\n", $2.code) ;  }
 			;
 
 list_funciones:  /*LAMBDA*/            					{ ; }
-			| list_funciones funcion    			 	{ printf ("%s\n", $2.code) ;} 
+			| funcion 									{ printf ("%s\n", $1.code) ;}  list_funciones     			 	 
 			;
 
 funcion:    IDENTIF 									{  sprintf(fun_actual, "%s", $1.code) ; }
@@ -130,12 +129,12 @@ main_func:  MAIN 										{sprintf(fun_actual, "%s", $1.code) ; }
 
 sentencias:	sentencia 									{ sprintf (temp, "%s\n", $1.code) ;  
 															$$.code = gen_code (temp) ; } ;
-			| sentencias sentencia  					{ sprintf (temp, "%s%s\n", $1.code, $2.code) ;  
+			| sentencia sentencias   					{ sprintf (temp, "%s\n%s", $1.code, $2.code) ;  
 															$$.code = gen_code (temp) ;}
 			;
 
 
-sentencia:  IDENTIF {  sprintf(identif_1, "%s", $1.code) ; } 	sentencia_aux 								{ sprintf (temp, "%s", $3.code) ; 
+sentencia:  IDENTIF {  sprintf(identif_1, "%s", $1.code) ; } 	sentencia_aux 									{ sprintf (temp, "%s", $3.code) ; 
 																													$$.code = gen_code (temp) ; } 
 			| PRINTF '(' STRING ',' exprs ')' ';' 																{  sprintf (temp, "%s", $5.code) ; 
 																													$$.code = gen_code (temp) ; }
@@ -162,7 +161,7 @@ sentencia_aux: '=' expresion ';' 						{sprintf (temp, "(setf %s %s)", identif_1
 	;
 sentencias_if: sentencia 								{ sprintf (temp, "%s\n", $1.code) ;  
 															$$.code = gen_code (temp) ; }
-			| sentencias_if sentencia  					{ sprintf (temp, "%s%s", $1.code, $2.code) ;  
+			|  sentencia  sentencias_if					{ sprintf (temp, "%s\n%s", $1.code, $2.code) ;  
 															$$.code = gen_code (temp) ;}
 			;
 else_statement: ELSE '{' sentencias_if '}' 				{ sprintf (temp, "(progn %s)", $3.code) ; 

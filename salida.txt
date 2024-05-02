@@ -1,0 +1,7 @@
+variable i
+0 i !
+variable a
+2 3 + a !
+variable agua
+1 negate agua !
+bye
