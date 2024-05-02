@@ -96,7 +96,8 @@ def_funciones: list_funciones main_func     			{ printf ("%s\n", $2.code) ;  }
 			;
 
 list_funciones:  /*LAMBDA*/            					{ ; }
-			| funcion 									{ printf ("%s\n", $1.code) ;}  list_funciones     			 	 
+			| funcion 									{ printf ("%s\n", $1.code) ;}  
+						list_funciones     			 	 
 			;
 
 funcion:    IDENTIF 									{  sprintf(fun_actual, "%s", $1.code) ; }

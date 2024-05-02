@@ -1,7 +1,15 @@
-variable i
-0 i !
+variable n
+n 1 !
 variable a
-2 3 + a !
-variable agua
-1 negate agua !
+a 1 !
+: main2
+." Hola2"
+;
+
+: main
+n @ .
+."  "
+n @ n @ * .
+;
+
 bye
