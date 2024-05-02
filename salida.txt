@@ -1,15 +1,21 @@
-variable n
-n 1 !
 variable a
-a 1 !
-: main2
-." Hola2"
-;
-
+0 a !
+variable b
+0 b !
 : main
-n @ .
-."  "
-n @ n @ * .
+10 a !
+begin
+a @ 0 >
+while
+a @ .
+a @ 2 mod 0 =
+if
+."  es par "
+else
+."  es impar "
+then
+a @ 1 - a !
+repeat
 ;
-
+main
 bye

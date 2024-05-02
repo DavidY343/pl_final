@@ -3,6 +3,10 @@
 (defun main2 ()
 (print "Hola2")
 )
+(defun main3 ()
+(print "Hola2")
+(setf i 2)
+)
 
 (defun main ()
 (prin1 n) (prin1 " ") (prin1 (* n n))
