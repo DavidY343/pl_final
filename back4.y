@@ -15,7 +15,7 @@ char *int_to_string (int) ;
 char *char_to_string (char) ;
 
 char temp [2048] ;
-char arg[64] = "";
+char arg[64];
 // Definitions for explicit attributes
 
 typedef struct s_attr {
@@ -103,8 +103,10 @@ main_func:  	DEFUN MAIN '(' ')' sentencias ')'        		{ sprintf(temp, ": main\
 																	$$.code = gen_code(temp); }
 				;
 
-funcion:    	DEFUN IDENTIF '(' maybe_param 					{ sprintf(arg, "%s", $4.code) ;}
-				')' sentencias  ')'  '('  						{ sprintf(temp, ": %s\n%s;", $2.code, $7.code); 
+funcion:    	DEFUN IDENTIF '(' maybe_param 					{ sprintf(arg, "%s", $4.code) ; }
+				')' sentencias  ')'  '('  						{ if (strcmp(arg, "") == 0)	 
+																	{sprintf(temp, ": %s\n%s;", $2.code, $7.code);}
+																 else {sprintf(temp, "variable %s\n: %s\n%s !\n%s;", $4.code, $2.code, $4.code, $7.code);} 
 																	$$.code = gen_code(temp); }
 				;
 
@@ -125,9 +127,7 @@ sentencia:   	PRINT STRING                                			{sprintf (temp, ".\
 																			$$.code = gen_code(temp);}
 				| PRIN1 expresion                          				{sprintf (temp, "%s .", $2.code);
 																			$$.code = gen_code(temp);}
-				| SETF IDENTIF expresion                    			{if (strcmp($2.code, arg) == 0){
-																			sprintf (temp, "%s", $3.code) ;}
-																	 	else{sprintf (temp, "%s %s !", $3.code, $2.code);}
+				| SETF IDENTIF expresion                    			{sprintf (temp, "%s %s !", $3.code, $2.code);
 																			$$.code = gen_code(temp);}
 				| LOOP WHILE expresion  DO sentencias        			{ sprintf (temp, "begin\n%s\nwhile\n%srepeat", $3.code, $5.code);
 																			$$.code = gen_code(temp);}
@@ -151,9 +151,7 @@ else_expresion: /*lamba*/                               			{ strcpy(temp, "");
 				;
 
 expresion:      termino                  							{ $$ = $1 ; }
-				|   '(' '+' expresion  expresion ')'  				{ if (strcmp($3.code, "dup") == 0){
-																		sprintf (temp, "%s +", $4.code) ;}
-																	 else{sprintf (temp, "%s %s +", $3.code, $4.code) ;}
+				|   '(' '+' expresion  expresion ')'  				{ sprintf (temp, "%s %s +", $3.code, $4.code) ;
 																		$$.code = gen_code (temp) ; }
 				|   '(' '-' expresion  expresion ')'  				{ sprintf (temp, "%s %s -", $3.code, $4.code) ;
 																		$$.code = gen_code (temp) ; }
@@ -190,12 +188,9 @@ termino:        operando                           					{ $$ = $1 ; }
 																		$$.code = gen_code(temp) ; }  
 				;
 
-operando:       IDENTIF                  							{ if (strcmp($1.code, arg) == 0){
-																		sprintf (temp, "dup") ;}
-																	 else{
-																		sprintf (temp, "%s @", $1.code) ;}
+operando:       IDENTIF                  							{ sprintf (temp, "%s @", $1.code) ;
 																		$$.code = gen_code (temp) ; }
-				| '(' IDENTIF expresion ')'									{ sprintf (temp, "%s %s", $3.code, $2.code) ;
+				| '(' IDENTIF expresion ')'							{  sprintf (temp, "%s %s", $3.code, $2.code) ;
 																		$$.code = gen_code (temp) ;}
 				|   NUMBER                   						{ sprintf (temp, "%d", $1.value) ;
 																		$$.code = gen_code (temp) ; }

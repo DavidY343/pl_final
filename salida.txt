@@ -1,15 +1,19 @@
-variable c
-6 c !
 variable d
 0 d !
-: sumaresta
-dup +
-2 +
-dup
+variable n
+: countdown
+n !
+begin
+n @ 5 >
+while
+n @ .
+n @ 1 - n !
+repeat
+n @
 ;
 : main
-3 d !
-d @ sumaresta d !
+12 d !
+d @ countdown d !
 d @ .
 ;
 main

@@ -1,14 +1,16 @@
 
-(setq c 6)
 (setq d 0)
- (defun sumaresta(n)
-	(setf n (+ n n))
-	(setf n (+ n 2))
-	(return-from sumaresta (n))
+(defun countdown (n)
+
+(loop while (> n 5) do
+	(prin1 n)
+	(setf n (- n 1))
+)
+	(return-from countdown n)
 )
 (defun main ()
-	(setf d 3)
-	(setf d (sumaresta d))
+	(setf d 12)
+	(setf d (countdown d))
 	(prin1 d)
 )
  (main)
