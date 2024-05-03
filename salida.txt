@@ -1,21 +1,16 @@
-variable a
-0 a !
-variable b
-0 b !
+variable c
+6 c !
+variable d
+0 d !
+: sumaresta
+dup +
+2 +
+dup
+;
 : main
-10 a !
-begin
-a @ 0 >
-while
-a @ .
-a @ 2 mod 0 =
-if
-."  es par "
-else
-."  es impar "
-then
-a @ 1 - a !
-repeat
+3 d !
+d @ sumaresta d !
+d @ .
 ;
 main
 bye

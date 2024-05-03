@@ -1,0 +1,5 @@
+(setq a 0)
+(setq a 8)
+(defun main ()
+(setq main_a 4)
+)
