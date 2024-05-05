@@ -16,6 +16,7 @@ char *char_to_string (char) ;
 
 char temp [2048] ;
 char arg[64];
+char var_locales [1024] ; 
 // Definitions for explicit attributes
 
 typedef struct s_attr {
@@ -99,18 +100,21 @@ list_funciones: list_funciones funcion              			{printf ("%s\n", $2.code)
 				| funcion										{printf ("%s\n", $1.code);}  		
 				;
 
-main_func:  	DEFUN MAIN '(' ')' sentencias ')'        		{ sprintf(temp, ": main\n%s;", $5.code); 
+main_func:  	DEFUN MAIN '(' ')' sentencias ')'        		{ sprintf(temp, "%s: main\n%s;", var_locales, $5.code);
+																	strcpy(var_locales, ""); 
 																	$$.code = gen_code(temp); }
 				;
 
 funcion:    	DEFUN IDENTIF '(' maybe_param 					{ sprintf(arg, "%s", $4.code) ; }
 				')' sentencias  ')'  '('  						{ if (strcmp(arg, "") == 0)	 
-																	{sprintf(temp, ": %s\n%s;", $2.code, $7.code);}
-																 else {sprintf(temp, "variable %s\n: %s\n%s !\n%s;", $4.code, $2.code, $4.code, $7.code);} 
+																	{sprintf(temp, "%s: %s\n%s;", var_locales, $2.code, $7.code);}
+																 else 
+																 	{sprintf(temp, "%svariable %s\n: %s\n%s !\n%s;", var_locales, $4.code, $2.code, $4.code, $7.code);} 
+																	strcpy(var_locales, "");
 																	$$.code = gen_code(temp); }
 				;
 
-maybe_param: /*lambda*/												{ strcpy(temp, ""); 
+maybe_param: 	/*lambda*/												{ strcpy(temp, ""); 
 																		$$.code = gen_code (temp) ; }
 				| IDENTIF											{sprintf (temp, "%s", $1.code);
 																		$$.code = gen_code(temp) ; }
@@ -129,14 +133,18 @@ sentencia:   	PRINT STRING                                			{sprintf (temp, ".\
 																			$$.code = gen_code(temp);}
 				| SETF IDENTIF expresion                    			{sprintf (temp, "%s %s !", $3.code, $2.code);
 																			$$.code = gen_code(temp);}
-				| LOOP WHILE expresion  DO sentencias        			{ sprintf (temp, "begin\n%s\nwhile\n%srepeat", $3.code, $5.code);
+				| LOOP WHILE expresion  DO sentencias        			{sprintf (temp, "begin\n%s\nwhile\n%srepeat", $3.code, $5.code);
 																			$$.code = gen_code(temp);}
-				| IF expresion '(' PROGN sentencias ')' else_expresion {sprintf (temp, "%s\nif\n%s%sthen", $2.code, $5.code, $7.code);
+				| IF expresion '(' PROGN sentencias ')' else_expresion  {sprintf (temp, "%s\nif\n%s%sthen", $2.code, $5.code, $7.code);
 																			$$.code = gen_code(temp) ;}
 				| RETURN'-'FROM IDENTIF expresion						{sprintf (temp, "%s", $5.code);
 																			$$.code = gen_code(temp) ;}
 				| IDENTIF maybe_arg										{sprintf (temp, "%s %s", $2.code, $1.code);
-																		$$.code = gen_code(temp) ; }
+																			$$.code = gen_code(temp) ; }
+				| SETQ IDENTIF expresion								{sprintf (temp, "variable %s\n", $2.code);
+																			strcat(var_locales, temp);
+																			sprintf (temp, "%s %s !", $3.code, $2.code);
+																			$$.code = gen_code (temp) ; }
 				;
 	
 maybe_arg:		/*lambda*/											{ strcpy(temp, ""); 

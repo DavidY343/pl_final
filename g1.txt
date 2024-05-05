@@ -1,7 +1,7 @@
 
 (setq d 0)
 (defun countdown (n)
-
+(setq j (- 12 5))
 (loop while (> n 5) do
 	(prin1 n)
 	(setf n (- n 1))
@@ -9,9 +9,11 @@
 	(return-from countdown n)
 )
 (defun main ()
+	(setq j (- 12 5))
+	(setq l 0)
+	(setq f 0)
 	(setf d 12)
 	(setf d (countdown d))
 	(prin1 d)
 )
  (main)
-
