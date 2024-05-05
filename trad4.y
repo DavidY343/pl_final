@@ -205,11 +205,11 @@ inicializacion: /*LAMBDA*/								{ sprintf (temp, "0") ;
 															$$.code = gen_code (temp) ;}
 			;
 
-/*exprs: 		expresion_o_string							{ sprintf (temp, "(prin1 %s)", $1.code) ;  
+exprs: 		expresion_o_string							{ sprintf (temp, "(prin1 %s)", $1.code) ;  
 															$$.code = gen_code (temp) ;}
 			| exprs ',' expresion_o_string				{ sprintf (temp, "%s (prin1 %s)", $1.code, $3.code) ;  
 															$$.code = gen_code (temp) ;}
-			;*/
+			;
 		
 
 
