@@ -114,12 +114,8 @@ params: 		/*lamba*/								{ strcpy(temp, "");
 			| param_list								{ sprintf (temp, "%s", $1.code);
 															$$.code = gen_code (temp) ; }
 			;
-/*param_list: INTEGER IDENTIF								{ sprintf (temp, "%s", $2.code);
-															$$.code = gen_code (temp) ;}
-			| param_list ',' INTEGER IDENTIF		 		{ sprintf (temp, "%s %s", $1.code, $4.code);
-															$$.code = gen_code (temp); }*/
-	;
-/*<------------------- Funcion que reconece los parametros--------------->*/
+
+
 param_list: INTEGER IDENTIF		param_list_aux			{ sprintf (temp, "%s%s", $2.code, $3.code);
 															$$.code = gen_code (temp) ;}
 			;
@@ -180,18 +176,12 @@ else_statement: ELSE '{' sentencias_if '}' 				{ sprintf (temp, "(progn %s)", $3
 															$$.code = gen_code (temp) ;}
 			;
 
-/*declaracion: IDENTIF inicializacion 					{ sprintf (temp, "(setq %s %s)", $1.code, $2.code) ; 
-															$$.code = gen_code (temp) ;
-															add_local_var($1.code) ;} 
-			| declaracion ',' IDENTIF inicializacion	{ sprintf (temp, "%s (setq %s %s)", $1.code, $3.code, $4.code) ; 
-															$$.code = gen_code (temp) ;
-															add_local_var($3.code) ;}
-			;*/
 
-declaracion: IDENTIF inicializacion declaracion_aux			{ sprintf (temp, "(setq %s %s) %s", $1.code, $2.code, $3.code) ; 
+
+declaracion: IDENTIF inicializacion declaracion_aux		{ sprintf (temp, "(setq %s %s) %s", $1.code, $2.code, $3.code) ; 
 															$$.code = gen_code (temp) ;
 															add_local_var($1.code) ;}
-
+			;
 declaracion_aux: /*lambda*/								{ strcpy (temp, "");
 															$$.code = gen_code (temp) ;}
 			| ',' declaracion							{ sprintf (temp, "%s", $2.code) ; 
@@ -205,19 +195,21 @@ inicializacion: /*LAMBDA*/								{ sprintf (temp, "0") ;
 															$$.code = gen_code (temp) ;}
 			;
 
-exprs: 		expresion_o_string							{ sprintf (temp, "(prin1 %s)", $1.code) ;  
-															$$.code = gen_code (temp) ;}
-			| exprs ',' expresion_o_string				{ sprintf (temp, "%s (prin1 %s)", $1.code, $3.code) ;  
+exprs: 		expresion_o_string	exprs_aux				{ sprintf (temp, "(prin1 %s)%s", $1.code, $2.code) ;  
 															$$.code = gen_code (temp) ;}
 			;
-		
 
+exprs_aux: /*lambda*/									{ strcpy (temp, "");
+															$$.code = gen_code (temp) ;}
+		| ',' exprs										{ sprintf (temp, " %s", $2.code) ; 
+															$$.code = gen_code (temp) ;}
+		;
 
 expresion_o_string: expresion 							{ sprintf (temp, "%s", $1.code) ;  
 															$$.code = gen_code (temp) ;}
 			| STRING									{ sprintf (temp, "\"%s\"", $1.code) ;  
 															$$.code = gen_code (temp) ;}
-		
+			;	
 expresion:      termino                  				{ $$ = $1 ; }
 			|   expresion '+' expresion  				{ sprintf (temp, "(+ %s %s)", $1.code, $3.code) ;
 															$$.code = gen_code (temp) ; }
@@ -273,13 +265,15 @@ arguments: 		/*lamba*/								{ strcpy(temp, "");
 															$$.code = gen_code (temp) ; }
 			;
 
-arguments_list:  expresion								{ sprintf (temp, "%s", $1.code);
+arguments_list:  expresion	arguments_list_aux			{ sprintf (temp, "%s%s", $1.code, $2.code);
 															$$.code = gen_code (temp) ;}
-			| arguments_list ',' expresion		 		{ sprintf (temp, "%s %s", $1.code, $3.code);
-															$$.code = gen_code (temp); }
 			;
 
-
+arguments_list_aux: /*lamba*/							{ strcpy(temp, ""); 
+															$$.code = gen_code (temp) ; }
+			| ',' arguments_list						{ sprintf (temp, " %s", $2.code);
+															$$.code = gen_code (temp) ;}
+			;
 %%                            // SECCION 4    Codigo en C
 
 //Funciones añadidas

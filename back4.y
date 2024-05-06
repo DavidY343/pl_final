@@ -72,15 +72,13 @@ axioma_aux: 	decl_variables def_funciones					{ ; }
 				| def_funciones									{ ; }
 				;
 
-decl_variables:  SETQ IDENTIF expresion ')' maybeparen			{ sprintf (temp, "variable %s\n%s %s !\n", $2.code, $3.code, $2.code) ; 
+decl_variables:  SETQ IDENTIF expresion ')' '('					{ sprintf (temp, "variable %s\n%s %s !\n", $2.code, $3.code, $2.code) ; 
 																	$$.code = gen_code (temp) ;
 																	printf("%s", $$.code); }
 					r_exprvar
 				;
 
-maybeparen:     '('                         					{ ; }
-				| /*lambda*/               						{ ; }
-				;
+
 
 r_exprvar:		/*LAMBDA*/										{ ; }
 				|   decl_variables								{ ; }
@@ -88,7 +86,6 @@ r_exprvar:		/*LAMBDA*/										{ ; }
 
 def_funciones: list_funciones main_func  						{ printf ("%s\n", $2.code) ; }
 					main_call               
-				| /*LAMBDA*/                               		{ ; }
 				| main_func       								{ printf ("%s\n", $1.code) ; } 
 					main_call                             
 				;
@@ -114,10 +111,10 @@ funcion:    	DEFUN IDENTIF '(' maybe_param 					{ sprintf(arg, "%s", $4.code) ; 
 																	$$.code = gen_code(temp); }
 				;
 
-maybe_param: 	/*lambda*/												{ strcpy(temp, ""); 
-																		$$.code = gen_code (temp) ; }
-				| IDENTIF											{sprintf (temp, "%s", $1.code);
-																		$$.code = gen_code(temp) ; }
+maybe_param: 	/*lambda*/										{ strcpy(temp, ""); 
+																	$$.code = gen_code (temp) ; }
+				| IDENTIF										{sprintf (temp, "%s", $1.code);
+																	$$.code = gen_code(temp) ; }
 				;
 sentencias:		'(' sentencia ')'								{ sprintf (temp, "%s\n", $2.code) ;  
 																	$$.code = gen_code (temp) ;} ;
