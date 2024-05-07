@@ -54,6 +54,11 @@ typedef struct s_attr {
 %token NOT
 %token RETURN
 %token FROM
+%token MAKE
+%token ARRAY
+%token AREF
+%token MAKE-ARRAY
+%token RETURN-FROM
 
 %left OR
 %left AND
@@ -75,6 +80,10 @@ axioma_aux: 	decl_variables def_funciones					{ ; }
 decl_variables:  SETQ IDENTIF expresion ')' '('					{ sprintf (temp, "variable %s\n%s %s !\n", $2.code, $3.code, $2.code) ; 
 																	$$.code = gen_code (temp) ;
 																	printf("%s", $$.code); }
+					r_exprvar
+				| SETQ IDENTIF '(' MAKE-ARRAY NUMBER ')' '('		{ sprintf (temp, "variable %s %d cells allot", $2.code, $5.value) ;
+																		$$.code = gen_code (temp) ; 
+																	printf("%s", $$.code);}
 					r_exprvar
 				;
 
@@ -134,7 +143,7 @@ sentencia:   	PRINT STRING                                			{sprintf (temp, ".\
 																			$$.code = gen_code(temp);}
 				| IF expresion '(' PROGN sentencias ')' else_expresion  {sprintf (temp, "%s\nif\n%s%sthen", $2.code, $5.code, $7.code);
 																			$$.code = gen_code(temp) ;}
-				| RETURN'-'FROM IDENTIF expresion						{sprintf (temp, "%s", $5.code);
+				| RETURN-FROM IDENTIF expresion						{sprintf (temp, "%s", $3.code);
 																			$$.code = gen_code(temp) ;}
 				| IDENTIF maybe_arg										{sprintf (temp, "%s %s", $2.code, $1.code);
 																			$$.code = gen_code(temp) ; }
@@ -197,6 +206,9 @@ operando:       IDENTIF                  							{ sprintf (temp, "%s @", $1.code
 																		$$.code = gen_code (temp) ; }
 				| '(' IDENTIF expresion ')'							{  sprintf (temp, "%s %s", $3.code, $2.code) ;
 																		$$.code = gen_code (temp) ;}
+
+				|  '(' AREF IDENTIF expresion ')'					{ sprintf (temp, "%s %s @", $3.code, $2.code) ;
+																		$$.code = gen_code (temp) ; }
 				|   NUMBER                   						{ sprintf (temp, "%d", $1.value) ;
 																		$$.code = gen_code (temp) ; }
 				|   '(' expresion ')'        						{ $$ = $2 ; }
@@ -273,8 +285,9 @@ t_keyword keywords [] = { // define las palabras reservadas y los
 	">=",			MOREEQ,
 	"mod",          MOD,
 	"not",          NOT,
-	"return",	RETURN,
-	"from",		FROM,
+	"return-from",  RETRUN-FROM,
+	"make-array", 	MAKE-ARRAY,
+	"aref",			AREF,
 	NULL,          0               // para marcar el fin de la tabla
 } ;
 
@@ -381,7 +394,7 @@ int yylex ()
 	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
 		i = 0 ;
 		while (((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-			(c >= '0' && c <= '9') || c == '_') && i < 255) {
+			(c >= '0' && c <= '9') || c == '_' || c == '-') && i < 255) {
 			temp_str [i++] = tolower (c) ;
 			c = getchar () ;
 		}

@@ -1,0 +1,59 @@
+  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo
+  I I I I I I I      8     8   8           8     8     o  8    8
+  I  \ `+' /  I      8         8           8     8        8    8
+   \  `-+-'  /       8         8           8      ooooo   8oooo
+    `-__|__-'        8         8           8           8  8
+        |            8     o   8           8     o     8  8
+  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8
+
+Welcome to GNU CLISP 2.49.93+ (2018-02-18) <http://clisp.org/>
+
+Copyright (c) Bruno Haible, Michael Stoll 1992-1993
+Copyright (c) Bruno Haible, Marcus Daniels 1994-1997
+Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998
+Copyright (c) Bruno Haible, Sam Steingold 1999-2000
+Copyright (c) Sam Steingold, Bruno Haible 2001-2018
+
+Type :h and hit Enter for context help.
+
+#(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+  NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+  NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+  NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+  NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
+  NIL NIL NIL NIL NIL)
+0
+MAIN
+1" "2
+"" 2" "4
+"" 3" "8
+"" 4" "16
+"" 5" "32
+"" 6" "64
+"" 7" "128
+"" 8" "256
+"" 9" "512
+"" 10" "1024
+"" 11" "2048
+"" 12" "4096
+"" 13" "8192
+"" 14" "16384
+"" 15" "32768
+"" 16" "65536
+"" 17" "131072
+"" 18" "262144
+"" 19" "524288
+"" 20" "1048576
+"" 21" "2097152
+"" 22" "4194304
+"" 23" "8388608
+"" 24" "16777216
+"" 25" "33554432
+"" 26" "67108864
+"" 27" "134217728
+"" 28" "268435456
+"" 29" "536870912
+"" 30" "1073741824
+"" 
+NIL
+Bye.
