@@ -17,6 +17,9 @@ char *char_to_string (char) ;
 char temp [2048] ;
 char arg[64];
 char var_locales [1024] ; 
+char identif_actual[64] ;
+
+
 // Definitions for explicit attributes
 
 typedef struct s_attr {
@@ -77,7 +80,7 @@ axioma_aux: 	decl_variables def_funciones					{ ; }
 				| def_funciones									{ ; }
 				;
 
-decl_variables:  SETQ IDENTIF expresion ')' '('					{ sprintf (temp, "variable %s\n%s %s !\n", $2.code, $3.code, $2.code) ; 
+/*decl_variables:  SETQ IDENTIF expresion ')' '('					{ sprintf (temp, "variable %s\n%s %s !\n", $2.code, $3.code, $2.code) ; 
 																	$$.code = gen_code (temp) ;
 																	printf("%s", $$.code); }
 					r_exprvar
@@ -85,9 +88,19 @@ decl_variables:  SETQ IDENTIF expresion ')' '('					{ sprintf (temp, "variable %
 																		$$.code = gen_code (temp) ; 
 																	printf("%s", $$.code);}
 					r_exprvar
+				;*/
+decl_variables:  SETQ IDENTIF 									{sprintf (identif_actual, "%s", $2.code); }
+					declaracion ')' '('							{ sprintf (temp, "variable %s%s\n", $2.code, $4.code) ; 
+																	$$.code = gen_code (temp) ;
+																	printf("%s", $$.code); }
+					r_exprvar
 				;
 
-
+declaracion: 	expresion										{ sprintf (temp, "\n%s %s !", $1.code, identif_actual) ; 
+																	$$.code = gen_code (temp) ;}
+				| '(' MAKE-ARRAY NUMBER ')'						{ sprintf (temp, "%d cells allot", $3.value) ;
+																		$$.code = gen_code (temp) ;}
+				;
 
 r_exprvar:		/*LAMBDA*/										{ ; }
 				|   decl_variables								{ ; }
@@ -137,13 +150,15 @@ sentencia:   	PRINT STRING                                			{sprintf (temp, ".\
 																			$$.code = gen_code(temp);}
 				| PRIN1 expresion                          				{sprintf (temp, "%s .", $2.code);
 																			$$.code = gen_code(temp);}
-				| SETF IDENTIF expresion                    			{sprintf (temp, "%s %s !", $3.code, $2.code);
+				/*| SETF IDENTIF expresion                    			{sprintf (temp, "%s %s !", $3.code, $2.code);
+																			$$.code = gen_code(temp);}*/
+				| SETF asignacion										{sprintf (temp, "%s", $2.code);
 																			$$.code = gen_code(temp);}
 				| LOOP WHILE expresion  DO sentencias        			{sprintf (temp, "begin\n%s\nwhile\n%srepeat", $3.code, $5.code);
 																			$$.code = gen_code(temp);}
 				| IF expresion '(' PROGN sentencias ')' else_expresion  {sprintf (temp, "%s\nif\n%s%sthen", $2.code, $5.code, $7.code);
 																			$$.code = gen_code(temp) ;}
-				| RETURN-FROM IDENTIF expresion						{sprintf (temp, "%s", $3.code);
+				| RETURN-FROM IDENTIF expresion							{sprintf (temp, "%s", $3.code);
 																			$$.code = gen_code(temp) ;}
 				| IDENTIF maybe_arg										{sprintf (temp, "%s %s", $2.code, $1.code);
 																			$$.code = gen_code(temp) ; }
@@ -152,7 +167,13 @@ sentencia:   	PRINT STRING                                			{sprintf (temp, ".\
 																			sprintf (temp, "%s %s !", $3.code, $2.code);
 																			$$.code = gen_code (temp) ; }
 				;
-	
+
+asignacion: 	IDENTIF expresion 										{sprintf (temp, "%s %s !", $2.code, $1.code);
+																			$$.code = gen_code(temp);}
+				| 	'(' AREF IDENTIF expresion ')' expresion			{sprintf (temp, "%s %s %s cells + !", $6.code, $3.code, $4.code);
+																			$$.code = gen_code(temp);}
+				;
+
 maybe_arg:		/*lambda*/											{ strcpy(temp, ""); 
 																		$$.code = gen_code (temp) ; }
 				| expresion											{sprintf (temp, "%s", $1.code);
@@ -206,8 +227,7 @@ operando:       IDENTIF                  							{ sprintf (temp, "%s @", $1.code
 																		$$.code = gen_code (temp) ; }
 				| '(' IDENTIF expresion ')'							{  sprintf (temp, "%s %s", $3.code, $2.code) ;
 																		$$.code = gen_code (temp) ;}
-
-				|  '(' AREF IDENTIF expresion ')'					{ sprintf (temp, "%s %s @", $3.code, $2.code) ;
+				|  '(' AREF IDENTIF expresion ')'					{ sprintf (temp, "%s %s cells + @", $3.code, $4.code) ;
 																		$$.code = gen_code (temp) ; }
 				|   NUMBER                   						{ sprintf (temp, "%d", $1.value) ;
 																		$$.code = gen_code (temp) ; }
@@ -285,7 +305,7 @@ t_keyword keywords [] = { // define las palabras reservadas y los
 	">=",			MOREEQ,
 	"mod",          MOD,
 	"not",          NOT,
-	"return-from",  RETRUN-FROM,
+	"return-from",  RETURN-FROM,
 	"make-array", 	MAKE-ARRAY,
 	"aref",			AREF,
 	NULL,          0               // para marcar el fin de la tabla

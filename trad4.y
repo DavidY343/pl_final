@@ -288,7 +288,8 @@ void print_localvar_list() {
 }
 
 // Añade la variable a la tabla de variables
-void add_local_var(char *var_name) {
+void add_local_var(char *var_name)
+{
     t_localvar *new_localvar = (t_localvar *)malloc(sizeof(t_localvar));
     if (new_localvar == NULL) {
         printf("Error: No se pudo asignar memoria para la variable local.\n");
@@ -301,7 +302,8 @@ void add_local_var(char *var_name) {
         tabla_local_var = new_localvar;
     } else {
         t_localvar *current = tabla_local_var;
-        while (current->next != NULL) {
+        while (current->next != NULL)
+		{
             current = current->next;
         }
         current->next = new_localvar;
@@ -320,9 +322,11 @@ void add_name_func(const char *fun_name) {
 }
 
 // Libera la memoria de la tabla de variables
-void free_localvar_list() {
+void free_localvar_list()
+{
     t_localvar *current = tabla_local_var;
-    while (current != NULL) {
+    while (current != NULL)
+	{
         t_localvar *temp = current;
         current = current->next;
         free(temp);
@@ -377,16 +381,11 @@ char *concat_name_to_func(const char *fun_name)
                     free(result); // Liberar el resultado original
                     result = new_result; // Apuntar al nuevo resultado
                     pos = result + pos_index + strlen(prefixed_var); // Mover el puntero para continuar buscando
-                } else {
+                }
+				else
+				{
                     pos += strlen(current->var);
                 }
-				/*char *quote_pos = strchr(pos, '"');
-				char *next_pos = strstr(pos, current->var);
-				if ((quote_pos < next_pos) && quote_pos != NULL && next_pos != NULL)
-				{
-					char *next_quote_pos = strchr(quote_pos, '"');
-					pos = next_quote_pos;
-				}*/
             }
         }
         current = current->next;

@@ -1,0 +1,20 @@
+int a;
+int b;
+int c;
+main () {
+a = 4 ;
+c = a ;
+b = a && 4;
+puts("hola") ;
+printf("vaya", 1);
+printf("vaya", 1, a, "hola");
+while (i < -5) {
+    printf("El valor de i es %d\n", i);
+}
+if (a + 2) {
+    c = 5;
+}
+}
+//@ (main)
+
+

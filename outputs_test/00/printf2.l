@@ -1,4 +1,0 @@
-(defun main ()
-(prin1 (+ 123 1)) (prin1 " el texto se imprime ") (prin1 (+ 124 1))
-)
- (main)
