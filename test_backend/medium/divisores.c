@@ -19,8 +19,6 @@ main()
 	{
         printf("%d %s %d", divisor, " no es divisor de ", number);
     }
-
-    return 0;
 }
 
 //@ //@ main

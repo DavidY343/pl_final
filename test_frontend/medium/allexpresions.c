@@ -5,8 +5,8 @@
 // Ademas planteamos un monton de casos con if y else y solo if 
 // Este es un pequeño programa que conambiando los valores k y j ves todo los flujos
 // Con j = 21 y k = 18 ves el flujo de operacion2 por ejemplo
-int j = 1;
-int k = 1;
+int j = 6;
+int k = 4;
 
 operacion1()
 {

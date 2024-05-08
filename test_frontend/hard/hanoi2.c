@@ -7,9 +7,7 @@
 torres_de_hanoi(int n, int desde, int hacia, int auxiliar)
 {
     if (n == 1)
-	{ 
-        printf("%s %d %s %d", "Mover disco 1 de torre ", desde, "a torre ", hacia);
-		puts("");
+	{
         return (1) ;
     }
 	int mov = torres_de_hanoi(n - 1, desde, auxiliar, hacia) + 1 + torres_de_hanoi(n - 1, auxiliar, hacia, desde);

@@ -1,3 +1,5 @@
+/*Grupo: 54 David Andrés Yañez Martinez y Fernando Consiglieri Alcantara */
+/*100451958@alumnos.uc3m.es 100472111@alumnos.uc3m.es*/
 %{                          // SECCION 1 Declaraciones de C-Yacc
 
 #include <stdio.h>
@@ -193,30 +195,33 @@ expresion:      termino                  							{ $$ = $1 ; }
 				|   '(' MOREEQ expresion  expresion ')'  			{ sprintf (temp, "%s %s >=", $3.code, $4.code) ;
 																		$$.code = gen_code (temp) ; } 
 				|   '(' MOD expresion  expresion ')'  				{ sprintf (temp, "%s %s mod", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }                                       
+																		$$.code = gen_code (temp) ; }
+				|   '(' NOT expresion ')'							{ sprintf(temp, "%s 0=", $3.code); 
+																		$$.code = gen_code(temp) ; }                                       
 			;
 
 termino:        operando                           					{ $$ = $1 ; }                          
 				|   '+' operando %prec UNARY_SIGN      				{ sprintf (temp, "%s", $2.code) ;
 																		$$.code = gen_code (temp) ; }
 				|   '-' operando %prec UNARY_SIGN      				{ sprintf (temp, "%s negate", $2.code) ;
-																		$$.code = gen_code (temp) ; } 
-				|   NOT operando %prec UNARY_SIGN  					{ sprintf(temp, "%s 0=", $2.code); 
-																		$$.code = gen_code(temp) ; }  
+																		$$.code = gen_code (temp) ; }   
 				;
 
 operando:       IDENTIF                  							{ sprintf (temp, "%s @", $1.code) ;
 																		$$.code = gen_code (temp) ; }
-				| '(' IDENTIF expresion ')'							{  sprintf (temp, "%s %s", $3.code, $2.code) ;
+				| '(' IDENTIF arg_aux ')'							{  sprintf (temp, "%s%s", $3.code, $2.code) ;
 																		$$.code = gen_code (temp) ;}
 				|  '(' AREF IDENTIF expresion ')'					{ sprintf (temp, "%s %s cells + @", $3.code, $4.code) ;
 																		$$.code = gen_code (temp) ; }
 				|   NUMBER                   						{ sprintf (temp, "%d", $1.value) ;
 																		$$.code = gen_code (temp) ; }
-				|   '(' expresion ')'        						{ $$ = $2 ; }
 				;
 
-
+arg_aux: 	/*lambda*/												{ strcpy(temp, ""); 
+																		$$.code = gen_code (temp) ; }
+				| expresion											{  sprintf (temp, "%s ", $1.code) ;
+																		$$.code = gen_code (temp) ;}	
+				;
 %%                            // SECCION 4    Codigo en C
 
 int n_line = 1 ;

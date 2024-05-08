@@ -3,6 +3,7 @@
 # Creamos el directorio outputs/ si no existe
 mkdir -p outputs_frontend/
 mkdir -p clisp_frontend/
+mkdir -p cout_frontend/
 # Iteramos por cada subdirectorio en tests/
 
 for dir in test_frontend/*
@@ -13,6 +14,7 @@ do
     # Creamos un subdirectorio correspondiente en outputs/
     mkdir -p "outputs_frontend/$dir_name"
     mkdir -p "clisp_frontend/$dir_name"
+    mkdir -p "cout_frontend/$dir_name"
     # Iteramos por cada archivo .c dentro del subdirectorio actual
     for file in "$dir"/*.c
     do
@@ -22,9 +24,10 @@ do
         # Eliminamos la extensión '.c'  
         base_name="${base_name_c%.*}"
         # Redirigimos la entrada desde el archivo .c y guardamos la salida
+        cc "$file" -o cout 2>/dev/null ; ./cout > "cout_frontend/$dir_name/$base_name.out"
         ./trad4 < "$file" > "outputs_frontend/$dir_name/$base_name.l"
         clisp "outputs_frontend/$dir_name/$base_name.l" > "clisp_frontend/$dir_name/${base_name}.out"
     done
 done
 
-echo "Todas las entradas han sido procesadas, las salidas del trad se han guardado en el directorio outputs_frontend/.  y las salidas del back se han guardado en el directorio clisp_frontend/."
+echo "Todas las entradas han sido procesadas, las salidas del trad se han guardado en el directorio outputs_frontend/.  y las salidas del back se han guardado en el directorio clisp_frontend/." y la salida de c en cout_frontend/

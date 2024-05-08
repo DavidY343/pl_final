@@ -21,17 +21,17 @@ find_max(int n)
 
 find_min(int n)
 {
-	int min = vector[0];
+	int minimo = vector[0];
 	int i = 0;
 	while(i < n)
 	{   
-		if (vector[i] < min)
+		if (vector[i] < minimo)
 		{
-            min = vector[i];
+            minimo = vector[i];
         }
 		i = i + 1;
 	}
-	return min;
+	return minimo;
 }
 
 
