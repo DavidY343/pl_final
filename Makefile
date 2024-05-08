@@ -29,7 +29,7 @@ test_backend: trad back
 	sh run_backend.sh
 
 fclean: clean clean_dir
-	rm -rf trad4 back4
+	rm -rf trad4 back4 cout
 
 clean_dir:
 	rm -rf ./outputs_frontend ./clisp_frontend ./outputs_test ./clisp_test ./outputs_frontend_error ./clisp_frontend_error ./trad_backend ./back_backend ./gforth_backend ./cout_frontend ./cout_backend
