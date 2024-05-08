@@ -79,9 +79,9 @@ t_localvar *tabla_local_var = NULL;
 
 %%                            // Seccion 3 Gramatica - Semantico
 
-axioma:  decl_variables def_funciones 					{ free_localvar_list(); }
-		| def_funciones 								{ free_localvar_list(); } 
-	;
+axioma:		decl_variables def_funciones 					{ free_localvar_list(); }
+			| def_funciones 								{ free_localvar_list(); } 
+			;
 
 
 decl_variables: INTEGER declaracion ';'	 				{ add_name_func("GLOBAL");printf ("%s\n", $2.code) ;}  
@@ -114,15 +114,16 @@ params: 		/*lamba*/								{ strcpy(temp, "");
 															$$.code = gen_code (temp) ; }
 			;
 
-
 param_list: INTEGER IDENTIF		param_list_aux			{ sprintf (temp, "%s%s", $2.code, $3.code);
 															$$.code = gen_code (temp) ;}
 			;
+
 param_list_aux: /*lambda*/					 			{ strcpy (temp, "") ;
 															$$.code = gen_code (temp); }	
 			| ',' param_list		 					{ sprintf (temp, " %s", $2.code);
 															$$.code = gen_code (temp); }
 			;
+
 main_func:  MAIN 										{sprintf(fun_actual, "%s", $1.code) ; } 
 					'(' ')' '{' sentencias '}' 			{ add_name_func("main");
 															char *my_temp = concat_name_to_func("main");
@@ -149,7 +150,7 @@ sentencia:  IDENTIF {  sprintf(identif_1, "%s", $1.code) ; } 	sentencia_aux 				
 			| FOR '(' IDENTIF '=' expresion ';' expresion ';' IDENTIF '=' expresion ')' '{' sentencias '}'		{sprintf (temp, "(setf %s %s)\n(loop while %s do \n%s(setf %s %s))", $3.code, $5.code, $7.code, $14.code, $9.code, $11.code) ; 
 																													$$.code = gen_code (temp) ;} 
 			| INTEGER declaracion	';'	 																		{  $$ = $2; }
-			| IF '(' expresion ')' '{'sentencias_if '}'	else_statement 											{sprintf (temp, "(if %s\n(progn %s) %s)", $3.code, $6.code, $8.code) ; 
+			| IF '(' expresion ')' '{'sentencias '}'	else_statement 											{sprintf (temp, "(if %s\n(progn %s) %s)", $3.code, $6.code, $8.code) ; 
 																													$$.code = gen_code (temp) ;}
 			| RETURN expresion ';'																				{sprintf (temp, "(return-from %s %s)", fun_actual, $2.code) ; 
 																													$$.code = gen_code (temp) ; } 
@@ -162,19 +163,13 @@ sentencia_aux: '=' expresion ';' 						{sprintf (temp, "(setf %s %s)", identif_1
 			| '[' expresion ']' '=' expresion ';'		{ sprintf (temp, "(setf (aref %s %s) %s)", identif_1, $2.code, $5.code) ; 
 															$$.code = gen_code (temp) ;}
 
-	;
-sentencias_if: sentencia 								{ sprintf (temp, "%s\n", $1.code) ;  
-															$$.code = gen_code (temp) ; }
-			|  sentencia  sentencias_if					{ sprintf (temp, "%s\n%s", $1.code, $2.code) ;  
-															$$.code = gen_code (temp) ;}
 			;
-else_statement: ELSE '{' sentencias_if '}' 				{ sprintf (temp, "(progn %s)", $3.code) ; 
+
+else_statement: ELSE '{' sentencias '}' 				{ sprintf (temp, "(progn %s)", $3.code) ; 
 															$$.code = gen_code (temp) ;} ;
 			|	/*LAMBDA*/								{ strcpy(temp, ""); 
 															$$.code = gen_code (temp) ;}
 			;
-
-
 
 declaracion: IDENTIF inicializacion declaracion_aux		{ sprintf (temp, "(setq %s %s) %s", $1.code, $2.code, $3.code) ; 
 															$$.code = gen_code (temp) ;
@@ -193,7 +188,7 @@ inicializacion: /*LAMBDA*/								{ sprintf (temp, "0") ;
 															$$.code = gen_code (temp) ;}
 			;
 
-exprs: 		expresion_o_string	exprs_aux				{ sprintf (temp, "(prin1 %s)%s", $1.code, $2.code) ;  
+exprs:		expresion_o_string	exprs_aux				{ sprintf (temp, "(prin1 %s)%s", $1.code, $2.code) ;  
 															$$.code = gen_code (temp) ;}
 			;
 
@@ -207,7 +202,8 @@ expresion_o_string: expresion 							{ sprintf (temp, "%s", $1.code) ;
 															$$.code = gen_code (temp) ;}
 			| STRING									{ sprintf (temp, "\"%s\"", $1.code) ;  
 															$$.code = gen_code (temp) ;}
-			;	
+			;
+
 expresion:      termino                  				{ $$ = $1 ; }
 			|   expresion '+' expresion  				{ sprintf (temp, "(+ %s %s)", $1.code, $3.code) ;
 															$$.code = gen_code (temp) ; }
