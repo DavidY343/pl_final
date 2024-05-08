@@ -23,7 +23,7 @@ do
         base_name="${base_name_c%.*}"
         # Redirigimos la entrada desde el archivo .c y guardamos la salida
         ./trad4 < "$file" > "outputs_frontend/$dir_name/$base_name.l"
-        clisp < "outputs_frontend/$dir_name/$base_name.l" > "clisp_frontend/$dir_name/${base_name}.out"
+        clisp "outputs_frontend/$dir_name/$base_name.l" > "clisp_frontend/$dir_name/${base_name}.out"
     done
 done
 

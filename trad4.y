@@ -102,7 +102,7 @@ list_funciones:  /*LAMBDA*/            					{ ; }
 
 funcion:    IDENTIF 									{  sprintf(fun_actual, "%s", $1.code) ; }
 					'(' params ')' '{' sentencias '}' 	{ add_name_func($1.code);
-															char *my_temp = concat_name_to_func($7.code);
+															char *my_temp = concat_name_to_func($1.code);
 										 					sprintf (temp, "(defun %s (%s)\n%s)", $1.code, $4.code, my_temp) ;
 															$$.code = gen_code (temp) ; 
 															free(my_temp); }
@@ -231,15 +231,15 @@ expresion:      termino                  				{ $$ = $1 ; }
 															$$.code = gen_code (temp) ; }
 			|   expresion '%' expresion  				{ sprintf (temp, "(mod %s %s)", $1.code, $3.code) ;
 															$$.code = gen_code (temp) ; }
+			|   '!' expresion							{ sprintf (temp, "(not %s)", $2.code) ;
+															$$.code = gen_code (temp) ; }
 			;
 
 termino:        operando                           		{ $$ = $1 ; }                          
 			|   '+' operando %prec UNARY_SIGN      		{ sprintf (temp, "(+ %s)", $2.code) ;
 															$$.code = gen_code (temp) ; }
 			|   '-' operando %prec UNARY_SIGN      		{ sprintf (temp, "(- %s)", $2.code) ;
-															$$.code = gen_code (temp) ; }   
-			|   '!' operando %prec UNARY_SIGN  			{ sprintf(temp, "(not %s)", $2.code); 
-															$$.code = gen_code(temp) ; }
+															$$.code = gen_code (temp) ; }
 			;
 
 operando:   	IDENTIF   								{ sprintf (temp, "%s", $1.code) ; 

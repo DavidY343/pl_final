@@ -26,7 +26,7 @@ do
         # Redirigimos la entrada desde el archivo .c y guardamos la salida
         ./trad4 < "$file" > "trad_backend/$dir_name/$base_name.l"
 		./back4 <  "trad_backend/$dir_name/$base_name.l"  > "back_backend/$dir_name/${base_name}.f"
-		gforth < "back_backend/$dir_name/${base_name}.f" > "gforth_backend/$dir_name/${base_name}.out"
+		gforth "back_backend/$dir_name/${base_name}.f" > "gforth_backend/$dir_name/${base_name}.out"
     done
 done
 

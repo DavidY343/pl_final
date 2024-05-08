@@ -24,7 +24,7 @@ do
         # Redirigimos la entrada desde el archivo .c y guardamos la salida
 		echo EL archivo: $base_name debe tener un syntax error asociado
         ./trad4 < "$file" > "outputs_frontend_error/$dir_name/$base_name.l"
-        clisp < "outputs_frontend_error/$dir_name/$base_name.l" > "clisp_frontend_error/$dir_name/${base_name}.out"
+        clisp "outputs_frontend_error/$dir_name/$base_name.l" > "clisp_frontend_error/$dir_name/${base_name}.out"
     done
 done
 
