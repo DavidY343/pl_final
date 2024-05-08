@@ -102,9 +102,8 @@ list_funciones:  /*LAMBDA*/            					{ ; }
 
 funcion:    IDENTIF 									{  sprintf(fun_actual, "%s", $1.code) ; }
 					'(' params ')' '{' sentencias '}' 	{ add_name_func($1.code);
-										 					sprintf (temp, "(defun %s (%s)\n%s)", $1.code, $4.code, $7.code) ;
-										 					char *my_temp = concat_name_to_func($1.code);
-															strcpy(temp, my_temp);
+															char *my_temp = concat_name_to_func($7.code);
+										 					sprintf (temp, "(defun %s (%s)\n%s)", $1.code, $4.code, my_temp) ;
 															$$.code = gen_code (temp) ; 
 															free(my_temp); }
 			;
@@ -125,10 +124,9 @@ param_list_aux: /*lambda*/					 			{ strcpy (temp, "") ;
 															$$.code = gen_code (temp); }
 			;
 main_func:  MAIN 										{sprintf(fun_actual, "%s", $1.code) ; } 
-					'(' ')' '{' sentencias '}' 			{ add_name_func("main"); 
-															sprintf (temp, "(defun main ()\n%s)", $6.code) ; 
+					'(' ')' '{' sentencias '}' 			{ add_name_func("main");
 															char *my_temp = concat_name_to_func("main");
-															strcpy(temp, my_temp);
+															sprintf (temp, "(defun main ()\n%s)", my_temp) ;
 															$$.code = gen_code (temp) ; 
 															free(my_temp); }
 			;
@@ -148,7 +146,7 @@ sentencia:  IDENTIF {  sprintf(identif_1, "%s", $1.code) ; } 	sentencia_aux 				
 																													$$.code = gen_code (temp) ; } 
 			| WHILE '(' expresion ')' '{' sentencias '}' 														{sprintf (temp, "(loop while %s do \n%s)", $3.code, $6.code) ; 
 																													$$.code = gen_code (temp) ;} 
-			| FOR '(' IDENTIF '=' NUMBER ';' expresion ';' IDENTIF '=' expresion ')' '{' sentencias '}'			{sprintf (temp, "(setf %s %d)\n(loop while %s do \n%s(setf %s %s))", $3.code, $5.value, $7.code, $14.code, $9.code, $11.code) ; 
+			| FOR '(' IDENTIF '=' expresion ';' expresion ';' IDENTIF '=' expresion ')' '{' sentencias '}'		{sprintf (temp, "(setf %s %s)\n(loop while %s do \n%s(setf %s %s))", $3.code, $5.code, $7.code, $14.code, $9.code, $11.code) ; 
 																													$$.code = gen_code (temp) ;} 
 			| INTEGER declaracion	';'	 																		{  $$ = $2; }
 			| IF '(' expresion ')' '{'sentencias_if '}'	else_statement 											{sprintf (temp, "(if %s\n(progn %s) %s)", $3.code, $6.code, $8.code) ; 

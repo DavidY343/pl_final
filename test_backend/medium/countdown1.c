@@ -8,9 +8,9 @@ countdown(int start)
 
     for (i = start; i >= 0; i = i - 1)
 	{
-        printf("%d\n", i);
+        printf("%d %s", i, " ");
     }
-    printf("%s", "¡Tiempo terminado!\n");
+    printf("%s", "¡Tiempo terminado!");
 }
 
 main()
@@ -19,3 +19,6 @@ main()
     
     countdown(start);
 }
+
+//@ (main)
+

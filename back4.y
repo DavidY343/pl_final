@@ -60,8 +60,8 @@ typedef struct s_attr {
 %token MAKE
 %token ARRAY
 %token AREF
-%token MAKE-ARRAY
-%token RETURN-FROM
+%token MAKEARRAY
+%token RETURNFROM
 
 %left OR
 %left AND
@@ -98,7 +98,7 @@ decl_variables:  SETQ IDENTIF 									{sprintf (identif_actual, "%s", $2.code);
 
 declaracion: 	expresion										{ sprintf (temp, "\n%s %s !", $1.code, identif_actual) ; 
 																	$$.code = gen_code (temp) ;}
-				| '(' MAKE-ARRAY NUMBER ')'						{ sprintf (temp, "%d cells allot", $3.value) ;
+				| '(' MAKEARRAY NUMBER ')'						{ sprintf (temp, " %d cells allot", $3.value) ;
 																		$$.code = gen_code (temp) ;}
 				;
 
@@ -158,7 +158,7 @@ sentencia:   	PRINT STRING                                			{sprintf (temp, ".\
 																			$$.code = gen_code(temp);}
 				| IF expresion '(' PROGN sentencias ')' else_expresion  {sprintf (temp, "%s\nif\n%s%sthen", $2.code, $5.code, $7.code);
 																			$$.code = gen_code(temp) ;}
-				| RETURN-FROM IDENTIF expresion							{sprintf (temp, "%s", $3.code);
+				| RETURNFROM IDENTIF expresion							{sprintf (temp, "%s", $3.code);
 																			$$.code = gen_code(temp) ;}
 				| IDENTIF maybe_arg										{sprintf (temp, "%s %s", $2.code, $1.code);
 																			$$.code = gen_code(temp) ; }
@@ -305,8 +305,8 @@ t_keyword keywords [] = { // define las palabras reservadas y los
 	">=",			MOREEQ,
 	"mod",          MOD,
 	"not",          NOT,
-	"return-from",  RETURN-FROM,
-	"make-array", 	MAKE-ARRAY,
+	"return-from",  RETURNFROM,
+	"make-array", 	MAKEARRAY,
 	"aref",			AREF,
 	NULL,          0               // para marcar el fin de la tabla
 } ;
