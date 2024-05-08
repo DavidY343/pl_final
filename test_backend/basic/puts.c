@@ -8,5 +8,7 @@ main ()
 	puts("");
 	puts("Hola mundo");
 }
-//@ (main)
+//@ //@ main
+//@ //@ bye
+
 

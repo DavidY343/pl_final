@@ -30,6 +30,9 @@ main()
     printf("\n%s%d\n", "Número total de múltiplos: ", total_multiplos);
 }
 
-//@ (main)
+//@ //@ main
+//@ //@ bye
+
+
 
 

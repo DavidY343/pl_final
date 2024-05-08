@@ -55,10 +55,6 @@ typedef struct s_attr {
 %token MOREEQ
 %token MOD
 %token NOT
-%token RETURN
-%token FROM
-%token MAKE
-%token ARRAY
 %token AREF
 %token MAKEARRAY
 %token RETURNFROM
@@ -72,7 +68,7 @@ typedef struct s_attr {
 %left UNARY_SIGN NOT            // mayor orden de precedencia
 %%                            // Seccion 3 Gramatica - Semantico
 
-axioma:			'(' axioma_aux      							{ printf("bye\n"); }
+axioma:			'(' axioma_aux      							{ ; }
 				;
 
 
@@ -80,15 +76,6 @@ axioma_aux: 	decl_variables def_funciones					{ ; }
 				| def_funciones									{ ; }
 				;
 
-/*decl_variables:  SETQ IDENTIF expresion ')' '('					{ sprintf (temp, "variable %s\n%s %s !\n", $2.code, $3.code, $2.code) ; 
-																	$$.code = gen_code (temp) ;
-																	printf("%s", $$.code); }
-					r_exprvar
-				| SETQ IDENTIF '(' MAKE-ARRAY NUMBER ')' '('		{ sprintf (temp, "variable %s %d cells allot", $2.code, $5.value) ;
-																		$$.code = gen_code (temp) ; 
-																	printf("%s", $$.code);}
-					r_exprvar
-				;*/
 decl_variables:  SETQ IDENTIF 									{sprintf (identif_actual, "%s", $2.code); }
 					declaracion ')' '('							{ sprintf (temp, "variable %s%s\n", $2.code, $4.code) ; 
 																	$$.code = gen_code (temp) ;
@@ -107,14 +94,9 @@ r_exprvar:		/*LAMBDA*/										{ ; }
 				;
 
 def_funciones: list_funciones main_func  						{ printf ("%s\n", $2.code) ; }
-					main_call               
-				| main_func       								{ printf ("%s\n", $1.code) ; } 
-					main_call                             
+				| main_func       								{ printf ("%s\n", $1.code) ; }                             
 				;
 
-main_call:		'('  MAIN ')'                     				{ printf("%s\n", $2.code) ; }
-				| 		/*lambda*/                    			{ ; }
-				;
 list_funciones: list_funciones funcion              			{printf ("%s\n", $2.code);} 
 				| funcion										{printf ("%s\n", $1.code);}  		
 				;

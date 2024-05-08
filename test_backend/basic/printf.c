@@ -13,5 +13,8 @@ main ()
 	printf("Aguaa%d", 4 * 5, 7 - 3);
 	printf("Aguaa%d", "4 * 5", "7 - 3");
 }
-//@ (main)
+//@ //@ main
+//@ //@ bye
+
+
 

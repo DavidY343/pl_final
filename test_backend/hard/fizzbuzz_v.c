@@ -47,5 +47,8 @@ main()
 	fizzbuzz();
 }
 
-//@ (main)
+//@ //@ main
+//@ //@ bye
+
+
 

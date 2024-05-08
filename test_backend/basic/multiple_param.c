@@ -12,6 +12,8 @@ main ()
 	printf("%s %d %d", "Agua", j, l);
 	printf("%d %d %s %d", h, b, "fuego", i);
 }
-//@ (main)
+//@ //@ main
+//@ //@ bye
+
 
 
