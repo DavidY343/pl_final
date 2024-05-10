@@ -25,9 +25,9 @@ do
         base_name="${base_name_c%.*}"
         # Redirigimos la entrada desde el archivo .c y guardamos la salida
         cc "$file" -o cout 2>/dev/null ; ./cout > "cout_frontend/$dir_name/$base_name.out"
-        ./trad4 < "$file" > "outputs_frontend/$dir_name/$base_name.l"
+        ./trad < "$file" > "outputs_frontend/$dir_name/$base_name.l"
         clisp "outputs_frontend/$dir_name/$base_name.l" > "clisp_frontend/$dir_name/${base_name}.out"
     done
 done
 
-echo "Todas las entradas han sido procesadas, las salidas del trad se han guardado en el directorio outputs_frontend/.  y las salidas del back se han guardado en el directorio clisp_frontend/." y la salida de c en cout_frontend/
+echo "Todas las entradas han sido procesadas, las salidas del trad se han guardado en el directorio outputs_frontend/.  y las salidas de clisp se han guardado en el directorio clisp_frontend/." y la salida de c en cout_frontend/

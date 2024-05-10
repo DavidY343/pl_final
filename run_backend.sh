@@ -29,8 +29,8 @@ do
         # Redirigimos la entrada desde el archivo .c y guardamos la salida
 
         cc "$file" -o cout 2>/dev/null ; ./cout > "cout_backend/$dir_name/$base_name.out"
-        ./trad4 < "$file" > "trad_backend/$dir_name/$base_name.l"
-		./back4 <  "trad_backend/$dir_name/$base_name.l"  > "back_backend/$dir_name/${base_name}.f"
+        ./trad < "$file" > "trad_backend/$dir_name/$base_name.l"
+		./back <  "trad_backend/$dir_name/$base_name.l"  > "back_backend/$dir_name/${base_name}.f"
 		gforth "back_backend/$dir_name/${base_name}.f" 2>/dev/null > "gforth_backend/$dir_name/${base_name}.out"
     done
 done

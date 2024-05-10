@@ -22,9 +22,9 @@ do
         # Eliminamos la extensión '.c'  
         base_name="${base_name_c%.*}"
         # Redirigimos la entrada desde el archivo .c y guardamos la salida
-        ./trad4 < "$file" > "outputs_test/$dir_name/$base_name.l"
+        ./trad < "$file" > "outputs_test/$dir_name/$base_name.l"
         clisp "outputs_test/$dir_name/$base_name.l" > "clisp_test/$dir_name/${base_name}.out"
     done
 done
 
-echo "Todas las entradas han sido procesadas, las salidas del trad se han guardado en el directorio outputs_test/.  y las salidas del back se han guardado en el directorio clisp_test/."
+echo "Todas las entradas han sido procesadas, las salidas del trad se han guardado en el directorio outputs_test/.  y las salidas de clisp se han guardado en el directorio clisp_test/."
