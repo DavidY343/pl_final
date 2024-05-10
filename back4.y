@@ -64,7 +64,7 @@ typedef struct s_attr {
 %left OR
 %left AND
 %left '=' DIFF
-%left '<' '>' LESSEQ MOREEQ      
+%left '<' '>' LESSEQ MOREEQ
 %left '+' '-'                 // menor orden de precedencia
 %left '*' '/' MOD              // orden de precedencia intermedio
 %left UNARY_SIGN NOT            // mayor orden de precedencia
@@ -73,12 +73,11 @@ typedef struct s_attr {
 axioma:			'(' axioma_aux      							{ ; }
 				;
 
-
 axioma_aux: 	decl_variables def_funciones					{ ; }
 				| def_funciones									{ ; }
 				;
 
-decl_variables:  SETQ IDENTIF 									{sprintf (identif_actual, "%s", $2.code); }
+decl_variables:  SETQ IDENTIF 									{ sprintf (identif_actual, "%s", $2.code); }
 					declaracion ')' '('							{ sprintf (temp, "variable %s%s\n", $2.code, $4.code) ; 
 																	$$.code = gen_code (temp) ;
 																	printf("%s", $$.code); }
@@ -92,15 +91,15 @@ declaracion: 	expresion										{ sprintf (temp, "\n%s %s !", $1.code, identif_
 				;
 
 r_exprvar:		/*LAMBDA*/										{ ; }
-				|   decl_variables								{ ; }
+				| decl_variables								{ ; }
 				;
 
 def_funciones: list_funciones main_func  						{ printf ("%s\n", $2.code) ; }
 				| main_func       								{ printf ("%s\n", $1.code) ; }                             
 				;
 
-list_funciones: list_funciones funcion              			{printf ("%s\n", $2.code);} 
-				| funcion										{printf ("%s\n", $1.code);}  		
+list_funciones: list_funciones funcion              			{ printf ("%s\n", $2.code);} 
+				| funcion										{ printf ("%s\n", $1.code);}  		
 				;
 
 main_func:  	DEFUN MAIN '(' ')' sentencias ')'        		{ sprintf(temp, "%s: main\n%s;", var_locales, $5.code);
@@ -108,8 +107,8 @@ main_func:  	DEFUN MAIN '(' ')' sentencias ')'        		{ sprintf(temp, "%s: mai
 																	$$.code = gen_code(temp); }
 				;
 
-funcion:    	DEFUN IDENTIF '(' maybe_param 					{ sprintf(arg, "%s", $4.code) ; }
-				')' sentencias  ')'  '('  						{ if (strcmp(arg, "") == 0)	 
+funcion:		DEFUN IDENTIF '(' maybe_param 					{ sprintf(arg, "%s", $4.code) ; }
+				')' sentencias ')' '('							{ if (strcmp(arg, "") == 0)	 
 																	{sprintf(temp, "%s: %s\n%s;", var_locales, $2.code, $7.code);}
 																 else 
 																 	{sprintf(temp, "%svariable %s\n: %s\n%s !\n%s;", var_locales, $4.code, $2.code, $4.code, $7.code);} 
@@ -122,106 +121,107 @@ maybe_param: 	/*lambda*/										{ strcpy(temp, "");
 				| IDENTIF										{sprintf (temp, "%s", $1.code);
 																	$$.code = gen_code(temp) ; }
 				;
+
 sentencias:		'(' sentencia ')'								{ sprintf (temp, "%s\n", $2.code) ;  
 																	$$.code = gen_code (temp) ;} ;
 				| '(' sentencia ')' sentencias   				{ sprintf (temp, "%s\n%s", $2.code, $4.code) ;  
 																	$$.code = gen_code (temp) ;}
 				;
 
-sentencia:   	PRINT STRING                                			{sprintf (temp, ".\" %s\" cr", $2.code);
+sentencia:   	PRINT STRING                                			{ sprintf (temp, ".\" %s\" cr", $2.code);
 																			$$.code = gen_code(temp);}
-				| PRIN1 STRING                               			{sprintf (temp, ".\" %s\"", $2.code);
+				| PRIN1 STRING                               			{ sprintf (temp, ".\" %s\"", $2.code);
 																			$$.code = gen_code(temp);}
-				| PRIN1 expresion                          				{sprintf (temp, "%s .", $2.code);
+				| PRIN1 expresion                          				{ sprintf (temp, "%s .", $2.code);
 																			$$.code = gen_code(temp);}
-				/*| SETF IDENTIF expresion                    			{sprintf (temp, "%s %s !", $3.code, $2.code);
-																			$$.code = gen_code(temp);}*/
-				| SETF asignacion										{sprintf (temp, "%s", $2.code);
+				| SETF asignacion										{ sprintf (temp, "%s", $2.code);
 																			$$.code = gen_code(temp);}
-				| LOOP WHILE expresion  DO sentencias        			{sprintf (temp, "begin\n%s\nwhile\n%srepeat", $3.code, $5.code);
+				| LOOP WHILE expresion  DO sentencias        			{ sprintf (temp, "begin\n%s\nwhile\n%srepeat", $3.code, $5.code);
 																			$$.code = gen_code(temp);}
-				| IF expresion '(' PROGN sentencias ')' else_expresion  {sprintf (temp, "%s\nif\n%s%sthen", $2.code, $5.code, $7.code);
+				| IF expresion '(' PROGN sentencias ')' else_expresion  { sprintf (temp, "%s\nif\n%s%sthen", $2.code, $5.code, $7.code);
 																			$$.code = gen_code(temp) ;}
-				| RETURNFROM IDENTIF expresion							{sprintf (temp, "%s", $3.code);
+				| RETURNFROM IDENTIF expresion							{ sprintf (temp, "%s", $3.code);
 																			$$.code = gen_code(temp) ;}
-				| IDENTIF maybe_arg										{sprintf (temp, "%s %s", $2.code, $1.code);
+				| IDENTIF maybe_arg										{ sprintf (temp, "%s %s", $2.code, $1.code);
 																			$$.code = gen_code(temp) ; }
-				| SETQ IDENTIF expresion								{sprintf (temp, "variable %s\n", $2.code);
+				| SETQ IDENTIF expresion								{ sprintf (temp, "variable %s\n", $2.code);
 																			strcat(var_locales, temp);
 																			sprintf (temp, "%s %s !", $3.code, $2.code);
 																			$$.code = gen_code (temp) ; }
 				;
 
-asignacion: 	IDENTIF expresion 										{sprintf (temp, "%s %s !", $2.code, $1.code);
-																			$$.code = gen_code(temp);}
-				| 	'(' AREF IDENTIF expresion ')' expresion			{sprintf (temp, "%s %s %s cells + !", $6.code, $3.code, $4.code);
-																			$$.code = gen_code(temp);}
+asignacion: 	IDENTIF expresion 								{ sprintf (temp, "%s %s !", $2.code, $1.code);
+																		$$.code = gen_code(temp);}
+				| '(' AREF IDENTIF expresion ')' expresion		{ sprintf (temp, "%s %s %s cells + !", $6.code, $3.code, $4.code);
+																		$$.code = gen_code(temp);}
 				;
 
-maybe_arg:		/*lambda*/											{ strcpy(temp, ""); 
-																		$$.code = gen_code (temp) ; }
-				| expresion											{sprintf (temp, "%s", $1.code);
-																		$$.code = gen_code(temp) ; }
-				;
-else_expresion: /*lamba*/                               			{ strcpy(temp, ""); 
-																		$$.code = gen_code (temp) ; }
-				| '(' PROGN sentencias ')'                  		{sprintf (temp, "else\n%s", $3.code);
-																		$$.code = gen_code(temp) ; }
+maybe_arg:		/*lambda*/										{ strcpy(temp, ""); 
+																	$$.code = gen_code (temp) ; }
+				| expresion										{sprintf (temp, "%s", $1.code);
+																	$$.code = gen_code(temp) ; }
 				;
 
-expresion:      termino                  							{ $$ = $1 ; }
-				|   '(' '+' expresion  expresion ')'  				{ sprintf (temp, "%s %s +", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' '-' expresion  expresion ')'  				{ sprintf (temp, "%s %s -", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' '*' expresion  expresion ')'  				{ sprintf (temp, "%s %s *", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' '/' expresion  expresion ')'  				{ sprintf (temp, "%s %s /", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' '<' expresion  expresion ')'  				{ sprintf (temp, "%s %s <", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }   
-				|   '(' '>' expresion  expresion ')'  				{ sprintf (temp, "%s %s >", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }                                           
-				|   '(' AND expresion  expresion ')'  				{ sprintf (temp, "%s %s and", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' OR  expresion  expresion ')'  				{ sprintf (temp, "%s %s or", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' DIFF expresion  expresion ')'  				{ sprintf (temp, "%s %s = 0=", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' '=' expresion  expresion ')'  				{ sprintf (temp, "%s %s =", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }  
-				|   '(' LESSEQ expresion  expresion ')'  			{ sprintf (temp, "%s %s <=", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }    
-				|   '(' MOREEQ expresion  expresion ')'  			{ sprintf (temp, "%s %s >=", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; } 
-				|   '(' MOD expresion  expresion ')'  				{ sprintf (temp, "%s %s mod", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '(' NOT expresion ')'							{ sprintf(temp, "%s 0=", $3.code); 
-																		$$.code = gen_code(temp) ; }                                       
-			;
-
-termino:        operando                           					{ $$ = $1 ; }                          
-				|   '+' operando %prec UNARY_SIGN      				{ sprintf (temp, "%s", $2.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   '-' operando %prec UNARY_SIGN      				{ sprintf (temp, "%s negate", $2.code) ;
-																		$$.code = gen_code (temp) ; }   
+else_expresion: /*lambda*/                               		{ strcpy(temp, ""); 
+																	$$.code = gen_code (temp) ; }
+				| '(' PROGN sentencias ')'                  	{sprintf (temp, "else\n%s", $3.code);
+																	$$.code = gen_code(temp) ; }
 				;
 
-operando:       IDENTIF                  							{ sprintf (temp, "%s @", $1.code) ;
-																		$$.code = gen_code (temp) ; }
-				| '(' IDENTIF arg_aux ')'							{  sprintf (temp, "%s%s", $3.code, $2.code) ;
-																		$$.code = gen_code (temp) ;}
-				|  '(' AREF IDENTIF expresion ')'					{ sprintf (temp, "%s %s cells + @", $3.code, $4.code) ;
-																		$$.code = gen_code (temp) ; }
-				|   NUMBER                   						{ sprintf (temp, "%d", $1.value) ;
-																		$$.code = gen_code (temp) ; }
+expresion:      termino                  						{ $$ = $1 ; }
+				|   '(' '+' expresion  expresion ')'  			{ sprintf (temp, "%s %s +", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' '-' expresion  expresion ')'  			{ sprintf (temp, "%s %s -", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' '*' expresion  expresion ')'  			{ sprintf (temp, "%s %s *", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' '/' expresion  expresion ')'  			{ sprintf (temp, "%s %s /", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' '<' expresion  expresion ')'  			{ sprintf (temp, "%s %s <", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }   
+				|   '(' '>' expresion  expresion ')'  			{ sprintf (temp, "%s %s >", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }                                           
+				|   '(' AND expresion  expresion ')'  			{ sprintf (temp, "%s %s and", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' OR  expresion  expresion ')'  			{ sprintf (temp, "%s %s or", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' DIFF expresion  expresion ')'  			{ sprintf (temp, "%s %s = 0=", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' '=' expresion  expresion ')'  			{ sprintf (temp, "%s %s =", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }  
+				|   '(' LESSEQ expresion  expresion ')'  		{ sprintf (temp, "%s %s <=", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }    
+				|   '(' MOREEQ expresion  expresion ')'  		{ sprintf (temp, "%s %s >=", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; } 
+				|   '(' MOD expresion  expresion ')'  			{ sprintf (temp, "%s %s mod", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '(' NOT expresion ')'						{ sprintf(temp, "%s 0=", $3.code); 
+																	$$.code = gen_code(temp) ; }                                       
 				;
 
-arg_aux: 	/*lambda*/												{ strcpy(temp, ""); 
-																		$$.code = gen_code (temp) ; }
-				| expresion											{  sprintf (temp, "%s ", $1.code) ;
-																		$$.code = gen_code (temp) ;}	
+termino:        operando                           				{ $$ = $1 ; }                          
+				|   '+' operando %prec UNARY_SIGN      			{ sprintf (temp, "%s", $2.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   '-' operando %prec UNARY_SIGN      			{ sprintf (temp, "%s negate", $2.code) ;
+																	$$.code = gen_code (temp) ; }   
 				;
+
+operando:       IDENTIF											{ sprintf (temp, "%s @", $1.code) ;
+																	$$.code = gen_code (temp) ; }
+				| '(' IDENTIF arg_aux ')'						{ sprintf (temp, "%s%s", $3.code, $2.code) ;
+																	$$.code = gen_code (temp) ;}
+				|  '(' AREF IDENTIF expresion ')'				{ sprintf (temp, "%s %s cells + @", $3.code, $4.code) ;
+																	$$.code = gen_code (temp) ; }
+				|   NUMBER										{ sprintf (temp, "%d", $1.value) ;
+																	$$.code = gen_code (temp) ; }
+				;
+
+arg_aux: 	/*lambda*/											{ strcpy(temp, ""); 
+																	$$.code = gen_code (temp) ; }
+				| expresion										{ sprintf (temp, "%s ", $1.code) ;
+																	$$.code = gen_code (temp) ;}	
+				;
+
 %%                            // SECCION 4    Codigo en C
 
 int n_line = 1 ;
